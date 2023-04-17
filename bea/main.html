@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Travelling Salesman Problem - Simulated Annealing</title>
+    <link rel="stylesheet" type="text/css" href="./main.css" />
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,bold' rel='stylesheet' type='text/css' />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+</head>
+<body>
+    <div id="boxes">
+        <h3>Parameters:</h3>
+        <div id="settings">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Cities</td>
+                        <td>
+                            <input type="number" id="cities" min="1" max="73" value="26">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Number of generations</td>
+                        <td>
+                            <input type="number" id="generations" value="100" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Size of the population (number of bacteria in the population)</td>
+                        <td>
+                            <input type="number" id="popsize" value="50" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Number of clones in the bacterial mutation</td>
+                        <td>
+                            <input type="number" id="clones" value="100" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Number of infections in the gene transfer operation</td>
+                        <td>
+                            <input type="number" id="infections" value="8000" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p id="factorial">All possible solutions for 1 city:</p>
+            <p id="bestcost">Best Cost:</p>
+            <p id="iterOutput">Generation:</p>
+            <input type="checkbox" id="genOutput" />
+            <label for="genOutput">Show every step in algorithm output</label>
+            <div id="buttons" style="margin: 15px auto; width: 100px;">
+                <button id="solve">Solve</button>
+                <button id="stop">Stop</button>
+            </div>
+        </div>
+        <canvas id="tsp-canvas" width="700" height="600">
+            HTML5 Unsupported.
+        </canvas>
+        <h3>Algorithm output:</h3>
+        <div id="log-box"></div>
+
+    </div>
+    <script src="tsp.js">
+    </script>
+</body>
+</html>
