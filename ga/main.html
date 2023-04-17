@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Travelling Salesman Problem - Simulated Annealing</title>
+    <link rel="stylesheet" type="text/css" href="./main.css" />
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,bold' rel='stylesheet' type='text/css' />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+</head>
+<body>
+    <div>
+        <div id="settings">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Cities</td>
+                        <td>
+                            <input type="text" id="cities" value="26" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Size of the population</td>
+                        <td>
+                            <input type="text" id="popsize" value="500" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Elites</td>
+                        <td>
+                            <input type="text" id="elites" value="1" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Mutation rate</td>
+                        <td>
+                            <input type="text" id="mutrate" value="0.8" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Maximum iteration</td>
+                        <td>
+                            <input type="text" id="maxiter" value="800" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p id="bestcost">Best Cost:</p>
+            <div style="margin: 15px auto; width: 100px; border: 1px solid black;">
+                <button id="solve">Solve</button>
+            </div>
+        </div>
+        <canvas id="tsp-canvas" width="700" height="600">
+            HTML5 Unsupported.
+        </canvas>
+    </div>
+    <script src="tsp.js">
+    </script>
+</body>
+</html>
