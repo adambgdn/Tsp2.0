@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 var CITIES = 26;
 var GENERATIONS = 100;
@@ -18,6 +18,7 @@ $(document).ready(function () {
 
 document.getElementById('cities').addEventListener('input', calculateFactorial);
 const submitButton = document.getElementById('solve');
+const downloadBtn = document.getElementById('download-btn');
 
 //73 city
 const varosokA = [480, 150, 160, 240, 250, 121, 655, 180, 120, 190, 222, 333, 510, 170, 480, 180, 144, 560, 660, 400, 405, 150, 410, 20, 640, 30, 45, 101, 158, 81, 348, 10, 58, 70, 345, 481, 186, 182, 250, 256, 354, 658, 600, 520, 350, 233, 123, 321, 231, 213, 234, 34, 200, 44, 548, 378, 590, 12, 130, 170, 52, 470, 93, 390, 410, 50, 370, 410, 0, 600, 610, 620, 580];
@@ -64,7 +65,7 @@ function solve() {
     POPSIZE = parseInt($("#popsize").val());
     CLONES = parseInt($("#clones").val());
     INFECTIONS = parseInt($("#infections").val());
-    consoleLogDecorated("Running...");
+    consoleLogDecorated("Running... ");
 
     population = new Array(POPSIZE);
     for (let i = 0; i < population.length; i++) {
@@ -110,7 +111,7 @@ function update() {
         document.getElementById("iterOutput").textContent = "Generation: " + iteration + "/" + GENERATIONS;
         clearInterval(motor);
         printBest(iteration, bestPopObj);
-        consoleLogDecorated("End of the algorithm.");
+        consoleLogDecorated("End of the algorithm. ");
         return;
     }
     printBest(iteration, bestPopObj);
@@ -250,21 +251,6 @@ function geneTransfer(randomSuperior, randomInferior, start, length, destination
     return gtransferChromosome;
 }
 
-function getCost(route) {
-    var cost = 0;
-    for (var i = 0; i < CITIES - 1; i++) { 
-        cost = cost + getDistance(route[i], route[i + 1]); 
-    }
-    cost = cost + getDistance(route[0], route[CITIES - 1]); 
-    return cost;
-}
-
-function getDistance(p1, p2) {
-    del_x = p1[0] - p2[0];
-    del_y = p1[1] - p2[1];
-    return Math.sqrt((del_x * del_x) + (del_y * del_y));
-}
-
 function compare(ind1, ind2) {
     return ind1.objective - ind2.objective;
 }
@@ -314,14 +300,14 @@ function consoleLogDecorated(message) {
 }
 
 function cls(r, g, b) {
-    ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ', 0.9)';
+    ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ', 0.1)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function stop() {
     clearInterval(motor);
-    consoleLogDecorated("Stop button was pressed!");
-    consoleLogDecorated("End of the algorithm.");
+    consoleLogDecorated("Stop button was pressed! ");
+    consoleLogDecorated("End of the algorithm. ");
 }
 
 function calculateFactorial() {
@@ -374,7 +360,7 @@ function paint() {
         ctx.strokeStyle = "#c71414";
         ctx.closePath();
         ctx.fill();
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;
         ctx.stroke();
     }
     // Links
@@ -400,6 +386,18 @@ document.addEventListener('keydown', function (event) {
         event.preventDefault();
         solve();
     }
+});
+
+downloadBtn.addEventListener('click', () => {
+    const logbox = document.getElementById('log-box');
+    const logData = logbox.textContent;
+    const blob = new Blob([logData], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'output.txt';
+    a.click();
+    URL.revokeObjectURL(url);
 });
 
 window.onload = initialize;
