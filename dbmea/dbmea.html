@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Discrete Bacterial Memetic Evolutionary Algorithm - Travelling Salesman Problem</title>
+    <link rel="stylesheet" type="text/css" href="../algorithm.css" />
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,bold' rel='stylesheet' type='text/css' />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+</head>
+<body>
+    <div id="boxes">
+        <div class="wrapper">
+            <div class="title">
+                Discrete Bacterial Memetic Evolutionary Algorithm
+            </div>
+            <div class="right-menu">
+                <button class="menu-button">Menu</button>
+                <div class="dropdown-menu">
+                    <a href="../tsp.html">Home</a>
+                    <a href="../sa/sa.html">Simulated Annealing Algorithm</a>
+                    <a href="../ga/ga.html">Genetic Algorithm</a>
+                    <a href="../bea/bea.html">Bacterial Evolutionary Algorithm</a>
+                </div>
+            </div>
+        </div>
+        <h3>Parameters:</h3>
+        <div id="settings">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Cities</td>
+                        <td>
+                            <input type="number" id="cities" min="1" max="73" value="26">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Number of generations</td>
+                        <td>
+                            <input type="number" id="generations" value="10" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Size of the population (number of bacteria in the population)</td>
+                        <td>
+                            <input type="number" id="popsize" value="50" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Number of clones in the bacterial mutation</td>
+                        <td>
+                            <input type="number" id="clones" value="100" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Number of infections in the gene transfer operation</td>
+                        <td>
+                            <input type="number" id="infections" value="8000" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p id="factorial">All possible solutions for 1 city:</p>
+            <p id="bestcost">Best Cost:</p>
+            <p id="iterOutput">Generation:</p>
+            <input type="checkbox" id="genOutput" />
+            <label for="genOutput">Show every step in algorithm output</label>
+            <div id="buttons" style="margin: 15px auto; width: 100px;">
+                <button id="solve">Solve</button>
+                <button id="stop">Stop</button>
+            </div>
+        </div>
+        <canvas id="tsp-canvas" width="700" height="600">
+            HTML5 Unsupported.
+        </canvas>
+        <h3>Algorithm output:</h3>
+        <div id="log-box"></div>
+        <div>
+            <button id="download-btn">Download output</button>
+        </div>
+    </div>
+    <script src="dbmea.js">
+    </script>
+</body>
+</html>
