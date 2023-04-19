@@ -1,0 +1,64 @@
+/* Set global font styles */
+body {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #444;
+    background-color: #fcfbf0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Style the header */
+header {
+    background-color: #ebde9b;
+    color: #730202;
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 40px;
+}
+
+/* Style the container */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 50px;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* Style the options container */
+.options {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+}
+
+/* Style the option buttons */
+button {
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 1.2em;
+    color: #730202;
+    background-color: #ebde9b;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
+}
+
+    /* Style the option buttons on hover */
+    button:hover {
+        background-color: #c2b263;
+        box-shadow: 0px 5px 10px rgba(0,0,0,0.4);
+    }
+
+    /* Style the option buttons when active */
+    button:active {
+        background-color: #8c8149;
+        box-shadow: none;
+    }
+
