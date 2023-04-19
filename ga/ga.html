@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Genetic Algorithm- Travelling Salesman Problem</title>
+    <link rel="stylesheet" type="text/css" href="../algorithm.css" />
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,bold' rel='stylesheet' type='text/css' />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+</head>
+<body>
+    <div id="boxes">
+        <div class="wrapper">
+            <div class="title">
+                Genetic Algorithm
+            </div>
+            <div class="right-menu">
+                <button class="menu-button">Menu</button>
+                <div class="dropdown-menu">
+                    <a href="../tsp.html">Home</a>
+                    <a href="../sa/sa.html">Simulated Annealing Algorithm</a>
+                    <a href="../bea/bea.html">Bacterial Evolutionary Algorithm</a>
+                    <a href="../dbmea/dbmea.html">Discrete Bacterial Memetic Evolutionary Algorithm</a>
+                </div>
+            </div>
+        </div>
+        <h3>Parameters:</h3>
+        <div id="settings">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Cities</td>
+                        <td>
+                            <input type="number" id="cities" min="1" max="73" value="26" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Size of the population</td>
+                        <td>
+                            <input type="number" id="popsize" value="500" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Elites</td>
+                        <td>
+                            <input type="number" id="elites" value="1" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Mutation rate</td>
+                        <td>
+                            <input type="text" id="mutrate" value="0.8" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Maximum iteration</td>
+                        <td>
+                            <input type="number" id="maxiter" value="800" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p id="factorial">All possible solutions for 1 city:</p>
+            <p id="bestcost">Best Cost:</p>
+            <p id="iterOutput">Iteration:</p>
+            <input type="checkbox" id="genOutput" />
+            <label for="genOutput">Show every step in algorithm output</label>
+            <div id="buttons" style="margin: 15px auto; width: 100px;">
+                <button id="solve">Solve</button>
+                <button id="stop">Stop</button>
+            </div>
+        </div>
+        <canvas id="tsp-canvas" width="700" height="600">
+            HTML5 Unsupported.
+        </canvas>
+        <h3>Algorithm output:</h3>
+        <div id="log-box"></div>
+        <div>
+            <button id="download-btn">Download output</button>
+        </div>
+    </div>
+    <script src="ga.js">
+    </script>
+</body>
+</html>
