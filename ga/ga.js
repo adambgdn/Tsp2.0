@@ -4,7 +4,21 @@ var CITIES = 35;
 var POPSIZE = 500;
 var ELITES = 1;
 var MUTRATE = 0.8;
-var MAXITER = 8000;
+var MAXITER = 800;
+
+$(document).ready(function () {
+    calculateFactorial();
+    $("#solve").click(function () {
+        solve();
+    });
+    $("#stop").click(function () {
+        stop();
+    });
+});
+
+document.getElementById('cities').addEventListener('input', calculateFactorial);
+const submitButton = document.getElementById('solve');
+const downloadBtn = document.getElementById('download-btn');
 
 //73 city
 const varosokA = [480, 150, 160, 240, 250, 121, 655, 180, 120, 190, 222, 333, 510, 170, 480, 180, 144, 560, 660, 400, 405, 150, 410, 20, 640, 30, 45, 101, 158, 81, 348, 10, 58, 70, 345, 481, 186, 182, 250, 256, 354, 658, 600, 520, 350, 233, 123, 321, 231, 213, 234, 34, 200, 44, 548, 378, 590, 12, 130, 170, 52, 470, 93, 390, 410, 50, 370, 410, 0, 600, 610, 620, 580];
@@ -16,12 +30,8 @@ var motor;
 var iteration;
 var ppa;
 var ppb;
+var bestPopObj;
 
-function initialize() {
-    console.log(varosokA, varosokB);
-    canvas = document.getElementById('tsp-canvas');
-    ctx = canvas.getContext("2d");
-}
 
 class GENOTYPE {
     constructor() {
@@ -31,45 +41,15 @@ class GENOTYPE {
     }
 }
 
-$(document).ready(function () {
-    $("#solve").click(function () {
-        CITIES = parseInt($("#cities").val());
-        POPSIZE = parseInt($("#popsize").val());
-        ELITES = parseInt($("#elites").val());
-        MUTRATE = parseFloat($("#mutrate").val());
-        MAXITER = parseInt($("#maxiter").val());
-        solve();
-    });
-});
+console.log = function (message) {
+    var logBox = document.getElementById("log-box");
+    logBox.innerHTML += message + "<br>";
+    logBox.scrollTop = logBox.scrollHeight;
+};
 
-function solve() {
-    ppa = Array.from({ length: POPSIZE }, () => new GENOTYPE());
-    ppb = new Array(POPSIZE);
-    for (let i = 0; i < ppb.length; i++) {
-        ppb[i] = new GENOTYPE;
-    }
-    iteration = 0;     
-    init(ppa);    
-    motor = setInterval(update, 10);
-}
-
-function update() {
-    iteration++;
-    if (iteration >= MAXITER) {
-        clearInterval(motor);
-        return;
-    }
-    cls(255, 255, 190);
-    objective(ppa);
-    fitness(ppa);
-    printBest(iteration, ppa);
-    crossover(ppa, ppb);
-    swap(ppa, ppb);   
-}
-
-function cls(r, g, b) {
-    ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ', 0.05)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+function initialize() {
+    canvas = document.getElementById('tsp-canvas');
+    ctx = canvas.getContext("2d");
 }
 
 function init(pop) {
@@ -80,6 +60,59 @@ function init(pop) {
         fisherYates(pop[ind].order);
     }
 }
+
+function solve() {
+    CITIES = parseInt($("#cities").val());
+    POPSIZE = parseInt($("#popsize").val());
+    ELITES = parseInt($("#elites").val());
+    MUTRATE = parseFloat($("#mutrate").val());
+    MAXITER = parseInt($("#maxiter").val());
+    consoleLogDecorated("Running... ");
+
+    ppa = Array.from({ length: POPSIZE }, () => new GENOTYPE());
+    ppb = new Array(POPSIZE);
+    for (let i = 0; i < ppb.length; i++) {
+        ppb[i] = new GENOTYPE;
+    }
+    iteration = 0;
+    cls(255, 255, 190);
+    init(ppa);
+    bestPopObj = JSON.parse(JSON.stringify(ppa));
+    bestPopObj[0].objective = 99999999999999;
+    motor = setInterval(update, 10);
+}
+
+function update() {
+    cls(255, 255, 190);
+    if (iteration == 1) {
+        bestPopObj = JSON.parse(JSON.stringify(ppa));
+    }
+    objective(ppa);
+    fitness(ppa);
+    printBest(iteration, ppa);
+    crossover(ppa, ppb);
+    swap(ppa, ppb);
+    if (ppa[0].objective <= bestPopObj[0].objective) {
+        cls(255, 255, 190);
+        bestPopObj = JSON.parse(JSON.stringify(ppa));
+    }
+    if (iteration == MAXITER) {
+        document.getElementById("iterOutput").textContent = "Iteration: " + iteration + "/" + MAXITER;
+        clearInterval(motor);
+        printBest(iteration, bestPopObj);
+        consoleLogDecorated("End of the algorithm. ");
+        return;
+    }
+    printBest(iteration, bestPopObj);
+    iteration++;
+}
+
+function cls(r, g, b) {
+    ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ', 0.1)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+
 
 /* https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle */
 function fisherYates(order) {
@@ -240,7 +273,11 @@ function printBest(iter, pop) {
         best[city] = cityCoords[copy[city]];
     }
     paint();
-    console.log(output);
+    document.getElementById("iterOutput").textContent = "Generation: " + iteration + "/" + MAXITER;
+
+    if (document.getElementById("genOutput").checked == true) {
+        console.log(output);
+    }
     document.getElementById("bestcost").textContent = "Best Cost: " + pop[0].objective;
 }
 
@@ -289,11 +326,11 @@ function paint() {
     for (var i = 0; i < CITIES; i++) {
         ctx.beginPath();
         ctx.arc(best[i][0], best[i][1], 4, 0, 2 * Math.PI);
-        ctx.fillStyle = "#0000ff";
-        ctx.strokeStyle = "#000";
+        ctx.fillStyle = "#9e0000";
+        ctx.strokeStyle = "#c71414";
         ctx.closePath();
         ctx.fill();
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;
         ctx.stroke();
     }
     // Links
@@ -307,5 +344,58 @@ function paint() {
     ctx.stroke();
     ctx.closePath();
 }
+
+function consoleLogDecorated(message) {
+    var logBox = document.getElementById("log-box");
+    var decoratedMessage = "<strong>" + message + "</strong>";
+    logBox.innerHTML += "<p style='text-align: center'>" + decoratedMessage + "</p>";
+    logBox.scrollTop = logBox.scrollHeight;
+}
+
+function stop() {
+    clearInterval(motor);
+    consoleLogDecorated("Stop button was pressed! ");
+    consoleLogDecorated("End of the algorithm. ");
+}
+
+function calculateFactorial() {
+    const num = document.getElementById('cities').value;
+
+    if (num < 0) {
+        document.getElementById('factorial').textContent = 'Error: Input must be a non-negative integer.';
+        return;
+    }
+
+    let factorial = 1;
+    for (let i = 1; i <= BigInt(num); i++) {
+        factorial *= i;
+    }
+    document.getElementById('factorial').textContent = `All possible solutions for ${num} cities: ${factorial}.`;
+}
+
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+        const activeElement = document.activeElement;
+        if (activeElement.tagName === 'INPUT') {
+            event.preventDefault();
+            solve();
+            return;
+        }
+        event.preventDefault();
+        solve();
+    }
+});
+
+downloadBtn.addEventListener('click', () => {
+    const logbox = document.getElementById('log-box');
+    const logData = logbox.textContent;
+    const blob = new Blob([logData], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'output.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+});
 
 window.onload = initialize;
