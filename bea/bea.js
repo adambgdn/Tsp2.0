@@ -159,36 +159,36 @@ function mutate(actPop, clones, segmentLength) {
     for (let sN = 0; sN < segmentNumber; sN++) {
         var segmentStart = segmentLength * sN;
 
-        if (segmentStart + segmentLength >= actPop.order.length) {
-            return;
-        }
-        //creation of the clone baterien
-        let beforeSegment = actPop.order.slice(0, segmentStart);
-        let afterSegment = actPop.order.slice(segmentStart + segmentLength);
-        let segmentArray = actPop.order.slice(segmentStart, segmentStart + segmentLength);
+        if (segmentStart + segmentLength <= actPop.order.length) {
 
-        let clonePopulation = new Array(clones);
-        for (let i = 0; i < clonePopulation.length; i++) {
-            clonePopulation[i] = new CHROMOSOME;
-        }
-        //the first clone has the reverse of the original segment
-        clonePopulation[0].order = [...beforeSegment].concat(segmentArray.reverse(), ...afterSegment);
+            //creation of the clone baterien
+            let beforeSegment = actPop.order.slice(0, segmentStart);
+            let afterSegment = actPop.order.slice(segmentStart + segmentLength);
+            let segmentArray = actPop.order.slice(segmentStart, segmentStart + segmentLength);
 
-        //change randomly the order of vertices in the selected segment in the clones
-        for (let i = 0; i < clones - 1; i++) {
-            //the random order of segment
-            let orderOfSegment = [];
-            for (let i = 0; i < segmentArray.length; i++) {
-                orderOfSegment[i] = segmentArray[i];
+            let clonePopulation = new Array(clones);
+            for (let i = 0; i < clonePopulation.length; i++) {
+                clonePopulation[i] = new CHROMOSOME;
             }
-            fisherYates(orderOfSegment);
-            //the new bacterium will consist of the part of before the segment, the segment (in arbitrary order), and the part after the segment
-            clonePopulation[i + 1].order = [...beforeSegment].concat(...orderOfSegment, ...afterSegment);
+            //the first clone has the reverse of the original segment
+            clonePopulation[0].order = [...beforeSegment].concat(segmentArray.reverse(), ...afterSegment);
+
+            //change randomly the order of vertices in the selected segment in the clones
+            for (let i = 0; i < clones - 1; i++) {
+                //the random order of segment
+                let orderOfSegment = [];
+                for (let i = 0; i < segmentArray.length; i++) {
+                    orderOfSegment[i] = segmentArray[i];
+                }
+                fisherYates(orderOfSegment);
+                //the new bacterium will consist of the part of before the segment, the segment (in arbitrary order), and the part after the segment
+                clonePopulation[i + 1].order = [...beforeSegment].concat(...orderOfSegment, ...afterSegment);
+            }
+            //selecting the fittest from the clones
+            objective(clonePopulation);
+            fitness(clonePopulation);
+            bestclone[sN] = clonePopulation[0];
         }
-        //selecting the fittest from the clones
-        objective(clonePopulation);
-        fitness(clonePopulation);
-        bestclone[sN] = clonePopulation[0];
     }
     objective(bestclone);
     fitness(bestclone);
