@@ -148,55 +148,52 @@ function fitness(pop) {
 
 function bacterialMutation(pop, clones, segment) {
     for (let i = 0; i < pop.length; i++) {
-        let segmentNumber = Math.floor(pop[i].order.length / segment);
-        for (let sN = 0; sN < segmentNumber; sN++) {
-            if ((segment * sN + segment) <= pop[i].order.length) {
-                pop[i] = mutate(pop[i], clones, segment, segment * sN)
-            }
-        }
+        pop[i] = mutate(pop[i], clones, segment);       
     }
     return pop;
 }
 
-function mutate(actPop, clones, segment, segmentStart) {
-    if (segmentStart + segment >= actPop.order.length) {
-        return;
-    }
-    //creation of the clone baterien
-    let beforeSegment = actPop.order.slice(0, segmentStart);
-    let afterSegment = actPop.order.slice(segmentStart + segment);
-    let segmentArray = actPop.order.slice(segmentStart, segmentStart + segment);
+function mutate(actPop, clones, segmentLength) {
+    var bestclone = [];
+    let segmentNumber = Math.floor(actPop.order.length / segmentLength);
+    for (let sN = 0; sN < segmentNumber; sN++) {
+        var segmentStart = segmentLength * sN;
 
-    let clonePopulation = new Array(clones);
-    for (let i = 0; i < clonePopulation.length; i++) {
-        clonePopulation[i] = new CHROMOSOME;
-    }
-    //the first clone has the reverse of the original segment
-    clonePopulation[0].order = [...beforeSegment].concat(segmentArray.reverse(), ...afterSegment);
-
-    //change randomly the order of vertices in the selected segment in the clones
-    for (let i = 0; i < clones - 1; i++) {
-        //the random order of segment
-        let orderOfSegment = [];
-        for (let i = 0; i < segmentArray.length; i++) {
-            orderOfSegment[i] = i;
+        if (segmentStart + segmentLength >= actPop.order.length) {
+            return;
         }
-        fisherYates(orderOfSegment);
+        //creation of the clone baterien
+        let beforeSegment = actPop.order.slice(0, segmentStart);
+        let afterSegment = actPop.order.slice(segmentStart + segmentLength);
+        let segmentArray = actPop.order.slice(segmentStart, segmentStart + segmentLength);
 
-        let cloneOrder = [];
-        let cloneSegment = [];
-
-        //creation of the random segment
-        for (let j = 0; j < orderOfSegment.length; j++) {
-            cloneSegment[j] = segmentArray[orderOfSegment[j]];
+        let clonePopulation = new Array(clones);
+        for (let i = 0; i < clonePopulation.length; i++) {
+            clonePopulation[i] = new CHROMOSOME;
         }
-        //the new bacterium will consist of the part of before the segment, the segment (in arbitrary order), and the part after the segment
-        clonePopulation[i + 1].order = cloneOrder.concat([...beforeSegment], [...cloneSegment], [...afterSegment]);
+        //the first clone has the reverse of the original segment
+        clonePopulation[0].order = [...beforeSegment].concat(segmentArray.reverse(), ...afterSegment);
+
+        //change randomly the order of vertices in the selected segment in the clones
+        for (let i = 0; i < clones - 1; i++) {
+            //the random order of segment
+            let orderOfSegment = [];
+            for (let i = 0; i < segmentArray.length; i++) {
+                orderOfSegment[i] = segmentArray[i];
+            }
+            fisherYates(orderOfSegment);
+            //the new bacterium will consist of the part of before the segment, the segment (in arbitrary order), and the part after the segment
+            clonePopulation[i + 1].order = [...beforeSegment].concat(...orderOfSegment, ...afterSegment);
+        }
+        //selecting the fittest from the clones
+        objective(clonePopulation);
+        fitness(clonePopulation);
+        bestclone[sN] = clonePopulation[0];
     }
-    //selecting the fittest from the clones
-    objective(clonePopulation);
-    fitness(clonePopulation);
-    return clonePopulation[0];
+    objective(bestclone);
+    fitness(bestclone);
+    return (bestclone[0]);
+
 }
 
 function transfer(pop) {
@@ -237,6 +234,7 @@ function geneTransfer(randomSuperior, randomInferior, start, length, destination
     for (let i = 0; i < segment.length; i++) {
         gtransferChromosome.splice(destinationPos, 0, segment[i]);
     }
+    //valahol itt tartok most a doksiban
     for (let i = 0; i < segment.length; i++) {
         let originalIndex = gtransferChromosome.indexOf(segment[i], destinationPos + length);
         if (originalIndex != -1) {
