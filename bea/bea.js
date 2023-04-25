@@ -75,7 +75,7 @@ function solve() {
     cls(255, 255, 190);
     init(population);
     bestPopObj = JSON.parse(JSON.stringify(population));
-    bestPopObj[0].objective = 99999999999999;
+    bestPopObj[0].objective = Number.MAX_SAFE_INTEGER;
     motor = setInterval(update, 10);
 }
 
@@ -84,27 +84,19 @@ function update() {
     if (iteration == 1) {
         bestPopObj = JSON.parse(JSON.stringify(population));
     }
-    let transferredPopulation;
-
     //???????????????????
     //segment: CALCULATED, RANDOM GENERATED, OR INPUT PARAMETER?
     //???????????????????
-    var segment = 5;
+    var segment = 4;
 
     objective(population);
     fitness(population);
-    bacterialMutation(population, CLONES, segment);
+    population = bacterialMutation(population, CLONES, segment);
     objective(population);
     fitness(population);
-    transferredPopulation = transfer(population);
-    objective(transferredPopulation);
-    fitness(transferredPopulation);
-    population = transferredPopulation;
-    objective(population);
-    fitness(population);
+    population = transfer(population);
 
     if (population[0].objective <= bestPopObj[0].objective) {
-        cls(255, 255, 190);
         bestPopObj = JSON.parse(JSON.stringify(population));
     }
     if (iteration == GENERATIONS) {
@@ -159,7 +151,7 @@ function bacterialMutation(pop, clones, segment) {
         let segmentNumber = Math.floor(pop[i].order.length / segment);
         for (let sN = 0; sN < segmentNumber; sN++) {
             if ((segment * sN + segment) <= pop[i].order.length) {
-                pop[i].order = mutate(pop[i], clones, segment, segment * sN)
+                pop[i] = mutate(pop[i], clones, segment, segment * sN)
             }
         }
     }
@@ -167,6 +159,9 @@ function bacterialMutation(pop, clones, segment) {
 }
 
 function mutate(actPop, clones, segment, segmentStart) {
+    if (segmentStart + segment >= actPop.order.length) {
+        return;
+    }
     //creation of the clone baterien
     let beforeSegment = actPop.order.slice(0, segmentStart);
     let afterSegment = actPop.order.slice(segmentStart + segment);
@@ -180,7 +175,7 @@ function mutate(actPop, clones, segment, segmentStart) {
     clonePopulation[0].order = [...beforeSegment].concat(segmentArray.reverse(), ...afterSegment);
 
     //change randomly the order of vertices in the selected segment in the clones
-    for (let i = 1; i < clones; i++) {
+    for (let i = 0; i < clones - 1; i++) {
         //the random order of segment
         let orderOfSegment = [];
         for (let i = 0; i < segmentArray.length; i++) {
@@ -196,12 +191,12 @@ function mutate(actPop, clones, segment, segmentStart) {
             cloneSegment[j] = segmentArray[orderOfSegment[j]];
         }
         //the new bacterium will consist of the part of before the segment, the segment (in arbitrary order), and the part after the segment
-        clonePopulation[i].order = cloneOrder.concat([...beforeSegment], [...cloneSegment], [...afterSegment]);
+        clonePopulation[i + 1].order = cloneOrder.concat([...beforeSegment], [...cloneSegment], [...afterSegment]);
     }
     //selecting the fittest from the clones
     objective(clonePopulation);
     fitness(clonePopulation);
-    return clonePopulation[0].order;
+    return clonePopulation[0];
 }
 
 function transfer(pop) {
@@ -225,8 +220,11 @@ function transfer(pop) {
     }
     objective(transferredPop);
     fitness(transferredPop);
-
-    return transferredPop.slice(0, pop.length);
+    pop.push(...transferredPop)
+    objective(pop);
+    fitness(pop);
+    pop = pop.slice(0, POPSIZE)
+    return pop;
 }
 
 
@@ -300,7 +298,7 @@ function consoleLogDecorated(message) {
 }
 
 function cls(r, g, b) {
-    ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ', 0.1)';
+    ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ', 0.5)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
