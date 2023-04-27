@@ -21,8 +21,16 @@ const submitButton = document.getElementById('solve');
 const downloadBtn = document.getElementById('download-btn');
 
 //73 city
-const varosokA = [480, 150, 160, 240, 250, 121, 655, 180, 120, 190, 222, 333, 510, 170, 480, 180, 144, 560, 660, 400, 405, 150, 410, 20, 640, 30, 45, 101, 158, 81, 348, 10, 58, 70, 345, 481, 186, 182, 250, 256, 354, 658, 600, 520, 350, 233, 123, 321, 231, 213, 234, 34, 200, 44, 548, 378, 590, 12, 130, 170, 52, 470, 93, 390, 410, 50, 370, 410, 0, 600, 610, 620, 580];
-const varosokB = [350, 120, 230, 300, 270, 190, 310, 350, 400, 150, 470, 350, 555, 480, 120, 480, 577, 102, 108, 280, 200, 100, 500, 30, 50, 300, 78, 10, 170, 500, 28, 400, 77, 132, 152, 90, 210, 125, 290, 100, 412, 580, 42, 585, 540, 200, 12, 500, 360, 320, 189, 521, 23, 400, 370, 500, 550, 580, 40, 90, 128, 400, 470, 380, 378, 540, 80, 70, 280, 270, 390, 100, 10];
+const varosokA = [480, 150, 160, 240, 250, 121, 655, 180, 120, 190, 222, 333, 510, 170, 480, 180, 144, 560, 660, 400,
+    405, 150, 410, 20, 640, 30, 45, 101, 158, 81, 348, 10, 58, 70, 345, 481, 186, 182, 250, 256, 354, 658, 600, 520,
+    350, 233, 123, 321, 231, 213, 234, 34, 200, 44, 548, 378, 590, 12, 130, 170, 52, 470, 93, 390, 410, 50, 370, 410,
+    0, 600, 610, 620, 580, 80, 60, 546, 512, 123, 254, 215, 532, 512, 51, 41, 125, 187, 248, 268, 51, 90, 340, 380,
+    80, 152, 250, 50, 450, 380, 290, 288, 270, 111, 450, 480, 300, 310, 320];
+const varosokB = [350, 120, 230, 300, 270, 190, 310, 350, 400, 150, 470, 350, 555, 480, 120, 480, 577, 102, 108, 280,
+    200, 100, 500, 30, 50, 300, 78, 10, 170, 500, 28, 400, 77, 132, 152, 90, 210, 125, 290, 100, 412, 580, 42, 585,
+    540, 200, 12, 500, 360, 320, 189, 521, 23, 400, 370, 500, 550, 580, 40, 90, 128, 400, 470, 380, 378, 540, 80, 70,
+    280, 270, 390, 100, 10, 40, 300, 250, 400, 350, 380, 340, 358, 30, 270, 290, 280, 20, 410, 450, 480, 460, 450, 271,
+    52, 240, 266, 212, 221, 370, 390, 410, 45, 450, 350, 390, 380, 350, 340];
 const distances = createDistanceMatrix(varosokA, varosokB);
 var best = [];
 var bestPopObj;
@@ -76,7 +84,7 @@ function solve() {
     cls(255, 255, 190);
     init(population);
     bestPopObj = JSON.parse(JSON.stringify(population));
-    bestPopObj[0].objective = 99999999999999;
+    bestPopObj[0].objective = Number.MAX_SAFE_INTEGER;
     motor = setInterval(update, 10);
 }
 
@@ -195,44 +203,6 @@ function bacterialMutation(pop, clones, segment) {
     return pop;
 }
 
-function mutate(actPop, clones, segment, segmentStart) {
-    //creation of the clone baterien
-    let beforeSegment = actPop.order.slice(0, segmentStart);
-    let afterSegment = actPop.order.slice(segmentStart + segment);
-    let segmentArray = actPop.order.slice(segmentStart, segmentStart + segment);
-
-    let clonePopulation = new Array(clones);
-    for (let i = 0; i < clonePopulation.length; i++) {
-        clonePopulation[i] = new CHROMOSOME;
-    }
-    //the first clone has the reverse of the original segment
-    clonePopulation[0].order = [...beforeSegment].concat(segmentArray.reverse(), ...afterSegment);
-
-    //change randomly the order of vertices in the selected segment in the clones
-    for (let i = 1; i < clones; i++) {
-        //the random order of segment
-        let orderOfSegment = [];
-        for (let i = 0; i < segmentArray.length; i++) {
-            orderOfSegment[i] = i;
-        }
-        fisherYates(orderOfSegment);
-
-        let cloneOrder = [];
-        let cloneSegment = [];
-
-        //creation of the random segment
-        for (let j = 0; j < orderOfSegment.length; j++) {
-            cloneSegment[j] = segmentArray[orderOfSegment[j]];
-        }
-        //the new bacterium will consist of the part of before the segment, the segment (in arbitrary order), and the part after the segment
-        clonePopulation[i].order = cloneOrder.concat([...beforeSegment], [...cloneSegment], [...afterSegment]);
-    }
-    //selecting the fittest from the clones
-    objective(clonePopulation);
-    fitness(clonePopulation);
-    return clonePopulation[0].order;
-}
-
 function twoOpt(route) {
     for (let r = 0; r < route.length; r++) {
         let improved = true;
@@ -280,6 +250,7 @@ function threeOpt(routes) {
     }
     
 }
+
 function twoOptSwap(tour, i, j, k) {
     const newTour = tour.slice(0, i + 1);
     newTour.push(...tour.slice(j, k).reverse());
@@ -296,6 +267,56 @@ function reverseSubroute(route, i, k) {
     return route;
 }
 
+function bacterialMutation(pop, clones, segment) {
+    for (let i = 0; i < pop.length; i++) {
+        pop[i] = mutate(pop[i], clones, segment);
+    }
+    return pop;
+}
+
+function mutate(actPop, clones, segmentLength) {
+    var bestclone = [];
+    let segmentNumber = Math.floor(actPop.order.length / segmentLength);
+    for (let sN = 0; sN < segmentNumber; sN++) {
+        var segmentStart = segmentLength * sN;
+
+        if (segmentStart + segmentLength <= actPop.order.length) {
+
+            //creation of the clone baterien
+            let beforeSegment = actPop.order.slice(0, segmentStart);
+            let afterSegment = actPop.order.slice(segmentStart + segmentLength);
+            let segmentArray = actPop.order.slice(segmentStart, segmentStart + segmentLength);
+
+            let clonePopulation = new Array(clones);
+            for (let i = 0; i < clonePopulation.length; i++) {
+                clonePopulation[i] = new CHROMOSOME;
+            }
+            //the first clone has the reverse of the original segment
+            clonePopulation[0].order = [...beforeSegment].concat(segmentArray.reverse(), ...afterSegment);
+
+            //change randomly the order of vertices in the selected segment in the clones
+            for (let i = 0; i < clones - 1; i++) {
+                //the random order of segment
+                let orderOfSegment = [];
+                for (let i = 0; i < segmentArray.length; i++) {
+                    orderOfSegment[i] = segmentArray[i];
+                }
+                fisherYates(orderOfSegment);
+                //the new bacterium will consist of the part of before the segment, the segment (in arbitrary order), and the part after the segment
+                clonePopulation[i + 1].order = [...beforeSegment].concat(...orderOfSegment, ...afterSegment);
+            }
+            //selecting the fittest from the clones
+            objective(clonePopulation);
+            fitness(clonePopulation);
+            bestclone[sN] = clonePopulation[0];
+        }
+    }
+    objective(bestclone);
+    fitness(bestclone);
+    return (bestclone[0]);
+
+}
+
 function transfer(pop) {
     let half = Math.ceil(pop.length / 2);
     let superiorPop = pop.slice(0, half);
@@ -309,7 +330,7 @@ function transfer(pop) {
         let randomInferior = inferiorPop[Math.floor(Math.random() * inferiorPop.length)];
 
         // A destinationPosition ne legyen nagyobb mint a randomInferior hossza
-        // A start és a lenght ne legyen nagyobb mint a randomsuperior hossza -1
+        // A start Ã©s a lenght ne legyen nagyobb mint a randomsuperior hossza -1
         let length = 4;
         let randStart = Math.floor(Math.random() * randomInferior.order.length);
         let destinationPosition = Math.floor(Math.random() * (randomInferior.order.length - randStart)) + randStart;
@@ -317,8 +338,11 @@ function transfer(pop) {
     }
     objective(transferredPop);
     fitness(transferredPop);
-
-    return transferredPop.slice(0, pop.length);
+    pop.push(...transferredPop)
+    objective(pop);
+    fitness(pop);
+    pop = pop.slice(0, POPSIZE)
+    return pop;
 }
 
 
@@ -362,7 +386,7 @@ function printBest(iter, pop) {
     }
     let output = "";
     let city;
-    //var copy = pop[0].order; ez sajnos nem jó mert referenciát másol
+    //var copy = pop[0].order; ez sajnos nem jÃ³ mert referenciÃ¡t mÃ¡sol
     let copy = pop[0].order.slice();
     rotate(copy);
     output = `${iter.toString()}: ${cityCoords[copy[0]]}`;
@@ -414,7 +438,7 @@ function calculateFactorial() {
     for (let i = 1; i <= BigInt(num); i++) {
         factorial *= i;
     }
-    document.getElementById('factorial').textContent = `All possible solutions for ${num} cities: ${factorial}.`;
+    document.getElementById('factorial').textContent = `All possible solutions for ${num} cities: ${factorial}.` + " Max City = " + varosokA.length;
 }
 
 function reverse() {
