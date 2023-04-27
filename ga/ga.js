@@ -23,6 +23,7 @@ const downloadBtn = document.getElementById('download-btn');
 //73 city
 const varosokA = [480, 150, 160, 240, 250, 121, 655, 180, 120, 190, 222, 333, 510, 170, 480, 180, 144, 560, 660, 400, 405, 150, 410, 20, 640, 30, 45, 101, 158, 81, 348, 10, 58, 70, 345, 481, 186, 182, 250, 256, 354, 658, 600, 520, 350, 233, 123, 321, 231, 213, 234, 34, 200, 44, 548, 378, 590, 12, 130, 170, 52, 470, 93, 390, 410, 50, 370, 410, 0, 600, 610, 620, 580];
 const varosokB = [350, 120, 230, 300, 270, 190, 310, 350, 400, 150, 470, 350, 555, 480, 120, 480, 577, 102, 108, 280, 200, 100, 500, 30, 50, 300, 78, 10, 170, 500, 28, 400, 77, 132, 152, 90, 210, 125, 290, 100, 412, 580, 42, 585, 540, 200, 12, 500, 360, 320, 189, 521, 23, 400, 370, 500, 550, 580, 40, 90, 128, 400, 470, 380, 378, 540, 80, 70, 280, 270, 390, 100, 10];
+const distances = createDistanceMatrix(varosokA, varosokB);
 var best = [];
 var canvas;
 var ctx;
@@ -41,7 +42,7 @@ class GENOTYPE {
     }
 }
 
-console.log = function (message) {
+function logBox(message) {
     var logBox = document.getElementById("log-box");
     logBox.innerHTML += message + "<br>";
     logBox.scrollTop = logBox.scrollHeight;
@@ -70,26 +71,20 @@ function solve() {
     consoleLogDecorated("Running... ");
 
     ppa = Array.from({ length: POPSIZE }, () => new GENOTYPE());
-    ppb = new Array(POPSIZE);
-    for (let i = 0; i < ppb.length; i++) {
-        ppb[i] = new GENOTYPE;
-    }
+    ppb = Array.from({ length: POPSIZE }, () => new GENOTYPE());
+
     iteration = 0;
     cls(255, 255, 190);
     init(ppa);
     bestPopObj = JSON.parse(JSON.stringify(ppa));
-    bestPopObj[0].objective = 99999999999999;
+    bestPopObj[0].objective = Number.MAX_SAFE_INTEGER;
     motor = setInterval(update, 10);
 }
 
 function update() {
     cls(255, 255, 190);
-    if (iteration == 1) {
-        bestPopObj = JSON.parse(JSON.stringify(ppa));
-    }
     objective(ppa);
     fitness(ppa);
-    printBest(iteration, ppa);
     crossover(ppa, ppb);
     swap(ppa, ppb);
     if (ppa[0].objective <= bestPopObj[0].objective) {
@@ -125,8 +120,6 @@ function fisherYates(order) {
 }
 
 function objective(pop) {
-    const distances = createDistanceMatrix(varosokA, varosokB);
-
     for (let ind = 0; ind < POPSIZE; ind++) {
         let obj = 0,
             from,
@@ -209,7 +202,6 @@ function crossover(popOld, popNew) {
         }
         // Step2: copy missing elements of par2's matching section into offspring
         for (gene = pos1; gene <= pos2; gene++) {
-            //fekete leves
             var isAlleleMissing = false;
             var i = pos1;
             do {
@@ -276,7 +268,7 @@ function printBest(iter, pop) {
     document.getElementById("iterOutput").textContent = "Generation: " + iteration + "/" + MAXITER;
 
     if (document.getElementById("genOutput").checked == true) {
-        console.log(output);
+        logBox(output);
     }
     document.getElementById("bestcost").textContent = "Best Cost: " + pop[0].objective;
 }
