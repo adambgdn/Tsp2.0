@@ -20,19 +20,17 @@ document.getElementById('cities').addEventListener('input', calculateFactorial);
 const submitButton = document.getElementById('solve');
 const downloadBtn = document.getElementById('download-btn');
 
-//73 city
-const varosokA = [480, 150, 160, 240, 250, 121, 655, 180, 120, 190, 222, 333, 510, 170, 480, 180, 144, 560, 660, 400,
-    405, 150, 410, 20, 640, 30, 45, 101, 158, 81, 348, 10, 58, 70, 345, 481, 186, 182, 250, 256, 354, 658, 600, 520,
-    350, 233, 123, 321, 231, 213, 234, 34, 200, 44, 548, 378, 590, 12, 130, 170, 52, 470, 93, 390, 410, 50, 370, 410,
-    0, 600, 610, 620, 580, 80, 60, 546, 512, 123, 254, 215, 532, 512, 51, 41, 125, 187, 248, 268, 51, 90, 340, 380,
-    80, 152, 250, 50, 450, 380, 290, 288, 270, 111, 450, 480, 300, 310, 320];
-const varosokB = [350, 120, 230, 300, 270, 190, 310, 350, 400, 150, 470, 350, 555, 480, 120, 480, 577, 102, 108, 280,
-    200, 100, 500, 30, 50, 300, 78, 10, 170, 500, 28, 400, 77, 132, 152, 90, 210, 125, 290, 100, 412, 580, 42, 585,
-    540, 200, 12, 500, 360, 320, 189, 521, 23, 400, 370, 500, 550, 580, 40, 90, 128, 400, 470, 380, 378, 540, 80, 70,
-    280, 270, 390, 100, 10, 40, 300, 250, 400, 350, 380, 340, 358, 30, 270, 290, 280, 20, 410, 450, 480, 460, 450, 271,
-    52, 240, 266, 212, 221, 370, 390, 410, 45, 450, 350, 390, 380, 350, 340];
-const distances = createDistanceMatrix(varosokA, varosokB);
-var best = [];
+var cityCoords = [[480, 350], [150, 120], [160, 230], [240, 300], [250, 270], [121, 190], [655, 310], [180, 350],
+                  [120, 400], [190, 150], [222, 470], [333, 350], [510, 555], [170, 480], [480, 120], [180, 480],
+                  [144, 577], [560, 102], [660, 108], [400, 280], [405, 200], [150, 100], [410, 500], [20, 30],
+                  [640, 50], [30, 300], [45, 78], [101, 10], [158, 170], [81, 500], [348, 28], [10, 400], [58, 77],
+                  [70, 132], [345, 152], [481, 90], [186, 210], [182, 125], [250, 290], [256, 100], [354, 412],
+                  [658, 580], [600, 42], [520, 585], [350, 540], [233, 200], [123, 12], [321, 500], [231, 360],
+                  [213, 320], [234, 189], [34, 521], [200, 23], [44, 400], [548, 370], [378, 500], [590, 550],
+                  [12, 580], [130, 40], [170, 90], [52, 128], [470, 400], [93, 470], [390, 380], [410, 378],
+                  [50, 540], [370, 80], [410, 70], [0, 280], [600, 270], [610, 390], [620, 100], [580, 10]];
+const distances = createDistanceMatrix(cityCoords);
+
 var bestPopObj;
 var population;
 var iteration;
@@ -49,7 +47,7 @@ class CHROMOSOME {
 }
 
 console.log = function (message) {
-    var logBox = document.getElementById("log-box");
+    let logBox = document.getElementById("log-box");
     logBox.innerHTML += message + "<br>";
     logBox.scrollTop = logBox.scrollHeight;
 };
@@ -76,10 +74,7 @@ function solve() {
     INFECTIONS = parseInt($("#infections").val());
     consoleLogDecorated("Running... ");
 
-    population = new Array(POPSIZE);
-    for (let i = 0; i < population.length; i++) {
-        population[i] = new CHROMOSOME;
-    }
+    population = Array.from({ length: POPSIZE }, () => new CHROMOSOME());
     iteration = 0;
     cls(255, 255, 190);
     init(population);
@@ -93,7 +88,6 @@ function update() {
     if (iteration == 1) {
         bestPopObj = JSON.parse(JSON.stringify(population));
     }
-    let transferredPopulation;
 
     //???????????????????
     //segment: CALCULATED, RANDOM GENERATED, OR INPUT PARAMETER?
@@ -102,7 +96,7 @@ function update() {
 
     objective(population);
     fitness(population);
-    bacterialMutation(population, CLONES, segment);
+    population = bacterialMutation(population, CLONES, segment);
     objective(population);
     fitness(population);
     twoOpt(population);
@@ -111,15 +105,9 @@ function update() {
     threeOpt(population);
     objective(population);
     fitness(population);
-    transferredPopulation = transfer(population);
-    objective(transferredPopulation);
-    fitness(transferredPopulation);
-    population = transferredPopulation;
-    objective(population);
-    fitness(population);
+    population = transfer(population);
 
     if (population[0].objective <= bestPopObj[0].objective) {
-        cls(255, 255, 190);
         bestPopObj = JSON.parse(JSON.stringify(population));
     }
     if (iteration == GENERATIONS) {
@@ -189,18 +177,6 @@ function fitness(pop) {
     for (let ind = 0; ind < pop.length; ind++) {
         pop[ind].fitness = (pop.length - ind) * (pop.length - ind);
     }
-}
-
-function bacterialMutation(pop, clones, segment) {
-    for (let i = 0; i < pop.length; i++) {
-        let segmentNumber = Math.floor(pop[i].order.length / segment);
-        for (let sN = 0; sN < segmentNumber; sN++) {
-            if ((segment * sN + segment) <= pop[i].order.length) {
-                pop[i].order = mutate(pop[i], clones, segment, segment * sN)
-            }
-        }
-    }
-    return pop;
 }
 
 function twoOpt(route) {
@@ -275,7 +251,7 @@ function bacterialMutation(pop, clones, segment) {
 }
 
 function mutate(actPop, clones, segmentLength) {
-    var bestclone = [];
+    let bestclone = [];
     let segmentNumber = Math.floor(actPop.order.length / segmentLength);
     for (let sN = 0; sN < segmentNumber; sN++) {
         var segmentStart = segmentLength * sN;
@@ -380,10 +356,7 @@ function rotate(block) {
 }
 
 function printBest(iter, pop) {
-    var cityCoords = [];
-    for (let varosok = 0; varosok < CITIES; varosok++) {
-        cityCoords[varosok] = [varosokA[varosok], varosokB[varosok]]
-    }
+    var best = [];
     let output = "";
     let city;
     //var copy = pop[0].order; ez sajnos nem jó mert referenciát másol
@@ -398,8 +371,8 @@ function printBest(iter, pop) {
     for (city = 1; city < CITIES; city++) {
         best[city] = cityCoords[copy[city]];
     }
-    paint();
-    document.getElementById("iterOutput").textContent = "Generation: " + iteration + "/" + GENERATIONS;
+    paint(best);
+    document.getElementById("iterOutput").textContent = "Generation: " + iter + "/" + GENERATIONS;
 
     if (document.getElementById("genOutput").checked == true) {
         console.log(output);
@@ -409,8 +382,8 @@ function printBest(iter, pop) {
 }
 
 function consoleLogDecorated(message) {
-    var logBox = document.getElementById("log-box");
-    var decoratedMessage = "<strong>" + message + "</strong>";
+    let logBox = document.getElementById("log-box");
+    let decoratedMessage = "<strong>" + message + "</strong>";
     logBox.innerHTML += "<p style='text-align: center'>" + decoratedMessage + "</p>";
     logBox.scrollTop = logBox.scrollHeight;
 }
@@ -455,21 +428,21 @@ function euclideanDistance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }
 
-function createDistanceMatrix(cityX, cityY) {
-    const numCities = cityX.length;
+function createDistanceMatrix(cityCoords) {
+    const numCities = cityCoords.length;
     const distances = new Array(numCities);
     for (let i = 0; i < numCities; i++) {
         distances[i] = new Array(numCities);
         for (let j = 0; j < numCities; j++) {
-            const distance = euclideanDistance(cityX[i], cityY[i], cityX[j], cityY[j]);
+            const distance = euclideanDistance(cityCoords[i][0], cityCoords[i][1], cityCoords[j][0], cityCoords[j][1]);
             distances[i][j] = distance;
         }
     }
     return distances;
 }
-function paint() {
+function paint(best) {
     // Cities
-    for (var i = 0; i < CITIES; i++) {
+    for (let i = 0; i < CITIES; i++) {
         ctx.beginPath();
         ctx.arc(best[i][0], best[i][1], 4, 0, 2 * Math.PI);
         ctx.fillStyle = "#9e0000";
@@ -483,7 +456,7 @@ function paint() {
     ctx.strokeStyle = "#ff0000";
     ctx.lineWidth = 2;
     ctx.moveTo(best[0][0], best[0][1]);
-    for (var i = 0; i < CITIES - 1; i++) {
+    for (let i = 0; i < CITIES - 1; i++) {
         ctx.lineTo(best[i + 1][0], best[i + 1][1]);
     }
     ctx.lineTo(best[0][0], best[0][1]);
