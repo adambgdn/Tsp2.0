@@ -141,10 +141,10 @@ void crossover(const GENOTYPE* popOld, GENOTYPE* popNew, int cities, int popsize
             copyPos = memchr(popOld[par1].order + pos1, popOld[par2].order[gene], pos2 - pos1 + 1);
             if (!copyPos) { /* Allele is missing */
                 int where = gene;
-                char* valami;
+                char* chr;
                 do {
-                    valami = memchr(popOld[par2].order, popOld[par1].order[where], cities);
-                    where = valami - popOld[par2].order;
+                    chr = memchr(popOld[par2].order, popOld[par1].order[where], cities);
+                    where = chr - popOld[par2].order;
                 } while (where >= pos1 && where <= pos2);
                 popNew[ind].order[where] = popOld[par2].order[gene];
             }
