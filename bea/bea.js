@@ -20,7 +20,6 @@ document.getElementById('cities').addEventListener('input', calculateFactorial);
 const submitButton = document.getElementById('solve');
 const downloadBtn = document.getElementById('download-btn');
 
-//73 city
 var cityCoords = [[480, 350], [150, 120], [160, 230], [240, 300], [250, 270], [121, 190], [655, 310], [180, 350],
                   [120, 400], [190, 150], [222, 470], [333, 350], [510, 555], [170, 480], [480, 120], [180, 480],
                   [144, 577], [560, 102], [660, 108], [400, 280], [405, 200], [150, 100], [410, 500], [20, 30],
@@ -30,6 +29,7 @@ var cityCoords = [[480, 350], [150, 120], [160, 230], [240, 300], [250, 270], [1
                   [213, 320], [234, 189], [34, 521], [200, 23], [44, 400], [548, 370], [378, 500], [590, 550],
                   [12, 580], [130, 40], [170, 90], [52, 128], [470, 400], [93, 470], [390, 380], [410, 378],
                   [50, 540], [370, 80], [410, 70], [0, 280], [600, 270], [610, 390], [620, 100], [580, 10]];
+const distances = createDistanceMatrix(cityCoords);
 
 var bestPopObj;
 var population;
@@ -125,8 +125,6 @@ function fisherYates(order) {
 }
 
 function objective(pop) {
-    const distances = createDistanceMatrix(cityCoords);
-
     for (let ind = 0; ind < pop.length; ind++) {
         let obj = 0,
             from,
@@ -238,7 +236,6 @@ function geneTransfer(randomSuperior, randomInferior, start, length, destination
     for (let i = 0; i < segment.length; i++) {
         gtransferChromosome.splice(destinationPos, 0, segment[i]);
     }
-    //valahol itt tartok most a doksiban
     for (let i = 0; i < segment.length; i++) {
         let originalIndex = gtransferChromosome.indexOf(segment[i], destinationPos + length);
         if (originalIndex != -1) {
