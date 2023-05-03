@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Genetic Algorithm With WebAssembly - Travelling Salesman Problem</title>
+    <link rel="stylesheet" type="text/css" href="../algorithm.css" />
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,bold' rel='stylesheet' type='text/css' />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="gaWasm.js"></script>
+</head>
+<body>
+    <script>
+        var gaAlgorithm = Module.cwrap(
+            "gaAlgorithm",
+            "string",
+            ["number", "number", "number", "number", "number"],
+        );
+        var outputDiv = document.getElementById("log-box");
+        var canvas;
+        var ctx;
+
+        function run_wasm() {
+            var startTime = performance.now();
+            canvas = document.getElementById('tsp-canvas');
+            ctx = canvas.getContext("2d");
+            ctx.fillStyle = 'rgb(255, 255, 190)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            var cities = document.querySelector("#cities").value;
+            var popsize = document.querySelector("#popsize").value;
+            var elites = document.querySelector("#elites").value;
+            var mutrate = document.querySelector("#mutrate").value;
+            var maxiter = document.querySelector("#maxiter").value;
+
+            var result = gaAlgorithm(cities, popsize, elites, mutrate, maxiter);
+            var endTime = performance.now();
+            var runtime = (endTime - startTime);
+
+            document.querySelector("#log-box").innerHTML = result;
+            document.querySelector("#runtime").innerHTML = "Runtime: " + runtime + " ms";
+
+            const sum = parseInt(result.split('=')[1]);
+            const coordinates = result
+                .split('=')[0]
+                .split('->')
+                .map(coord => coord.split(',').map(Number));
+
+            console.log('Sum:', sum);
+            console.log('Coordinates:', coordinates);
+
+            paint(coordinates, cities);
+            document.querySelector("#bestcost").innerHTML = "Best Cost: " + sum + " km";
+
+        }
+    </script>
+
+    <div id="boxes">
+        <div class="wrapper">
+            <div class="title">
+                Genetic Algorithm With WebAssembly
+            </div>
+            <div class="right-menu">
+                <button class="menu-button">Menu</button>
+                <div class="dropdown-menu">
+                    <a href="../tsp.html">Home</a>
+                    <a href="../sa/sa.html">Simulated Annealing Algorithm</a>
+                    <a href="../ga/ga.html">Genetic Algorithm</a>
+                    <a href="../bea/bea.html">Bacterial Evolutionary Algorithm</a>
+                    <a href="../dbmea/dbmea.html">Discrete Bacterial Memetic Evolutionary Algorithm</a>
+                </div>
+            </div>
+        </div>
+        <h3>Parameters:</h3>
+        <div id="settings">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Cities</td>
+                        <td>
+                            <input type="number" id="cities" min="2" max="73" value="26" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Size of the population</td>
+                        <td>
+                            <input type="number" id="popsize" value="50" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Elites</td>
+                        <td>
+                            <input type="number" id="elites" value="1" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Mutation rate</td>
+                        <td>
+                            <input type="text" id="mutrate" value="0.1" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Maximum iteration</td>
+                        <td>
+                            <input type="number" id="maxiter" value="800" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p id="factorial">All possible solutions for 1 city:</p>
+            <p id="bestcost">Best Cost: </p>
+            <p id="runtime">Runtime: </p>
+            <div id="buttons" style="margin: 15px auto; width: 100px;">
+                <button id="solve" onclick="run_wasm()">Solve</button>
+            </div>
+        </div>
+        <canvas id="tsp-canvas" width="700" height="600">
+            HTML5 Unsupported.
+        </canvas>
+        <h3>Algorithm output:</h3>
+        <div id="log-box"></div>
+        <div>
+            <button id="download-btn">Download output</button>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            calculateFactorial();
+            $("#solve").click(function () {
+                run_wasm();
+            });
+        });
+        document.getElementById('cities').addEventListener('input', calculateFactorial);
+        const submitButton = document.getElementById('solve');
+        const downloadBtn = document.getElementById('download-btn');
+        downloadBtn.addEventListener('click', () => {
+            const logbox = document.getElementById('log-box');
+            const logData = logbox.textContent;
+            const blob = new Blob([logData], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'output.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+        function paint(best, cities) {
+            // Cities
+            for (let i = 0; i < cities; i++) {
+                ctx.beginPath();
+                ctx.arc(best[i][0], best[i][1], 4, 0, 2 * Math.PI);
+                ctx.fillStyle = "#9e0000";
+                ctx.strokeStyle = "#c71414";
+                ctx.closePath();
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            // Links
+            ctx.strokeStyle = "#ff0000";
+            ctx.lineWidth = 2;
+            ctx.moveTo(best[0][0], best[0][1]);
+            for (let i = 0; i < cities - 1; i++) {
+                ctx.lineTo(best[i + 1][0], best[i + 1][1]);
+            }
+            ctx.lineTo(best[0][0], best[0][1]);
+            ctx.stroke();
+            ctx.closePath();
+        }
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement.tagName === 'INPUT') {
+                    event.preventDefault();
+                    run_wasm();
+                    return;
+                }
+                event.preventDefault();
+                run_wasm();
+            }
+        });
+        function calculateFactorial() {
+            const num = document.getElementById('cities').value;
+
+            if (num < 0) {
+                document.getElementById('factorial').textContent = 'Error: Input must be a non-negative integer.';
+                return;
+            }
+
+            let factorial = 1;
+            for (let i = 1; i <= BigInt(num); i++) {
+                factorial *= i;
+            }
+            document.getElementById('factorial').textContent = `All possible solutions for ${num} cities: ${factorial}.`;
+        }
+    </script>
+</body>
+</html>
