@@ -20,8 +20,8 @@ document.getElementById('cities').addEventListener('input', calculateFactorial);
 const submitButton = document.getElementById('solve');
 const downloadBtn = document.getElementById('download-btn');
 
-const varosokA = [480, 150, 160, 240, 250, 121, 655, 180, 120, 190, 222, 333, 510, 170, 480, 180, 144, 560, 660, 400, 405, 150, 410, 20, 640, 30, 45, 101, 158, 81, 348, 10, 58, 70, 345, 481, 186, 182, 250, 256, 354, 658, 600, 520, 350, 233, 123, 321, 231, 213, 234, 34, 200, 44, 548, 378, 590, 12, 130, 170, 52, 470, 93, 390, 410, 50, 370, 410, 0, 600, 610, 620, 580];
-const varosokB = [350, 120, 230, 300, 270, 190, 310, 350, 400, 150, 470, 350, 555, 480, 120, 480, 577, 102, 108, 280, 200, 100, 500, 30, 50, 300, 78, 10, 170, 500, 28, 400, 77, 132, 152, 90, 210, 125, 290, 100, 412, 580, 42, 585, 540, 200, 12, 500, 360, 320, 189, 521, 23, 400, 370, 500, 550, 580, 40, 90, 128, 400, 470, 380, 378, 540, 80, 70, 280, 270, 390, 100, 10];
+const cityX = [480, 150, 160, 240, 250, 121, 655, 180, 120, 190, 222, 333, 510, 170, 480, 180, 144, 560, 660, 400, 405, 150, 410, 20, 640, 30, 45, 101, 158, 81, 348, 10, 58, 70, 345, 481, 186, 182, 250, 256, 354, 658, 600, 520, 350, 233, 123, 321, 231, 213, 234, 34, 200, 44, 548, 378, 590, 12, 130, 170, 52, 470, 93, 390, 410, 50, 370, 410, 0, 600, 610, 620, 580];
+const cityY = [350, 120, 230, 300, 270, 190, 310, 350, 400, 150, 470, 350, 555, 480, 120, 480, 577, 102, 108, 280, 200, 100, 500, 30, 50, 300, 78, 10, 170, 500, 28, 400, 77, 132, 152, 90, 210, 125, 290, 100, 412, 580, 42, 585, 540, 200, 12, 500, 360, 320, 189, 521, 23, 400, 370, 500, 550, 580, 40, 90, 128, 400, 470, 380, 378, 540, 80, 70, 280, 270, 390, 100, 10];
 
 console.log = function (message) {
     var logBox = document.getElementById("log-box");
@@ -86,7 +86,7 @@ function acceptanceProbability(current_cost, neighbor_cost) {
 function init() {
     // feltöltjük a current tömböt a városok x és y koordinátáival
     for (var i = 0; i < CITIES; i++) {
-        current[i] = [varosokA[i], varosokB[i]];
+        current[i] = [cityX[i], cityY[i]];
     }
     deep_copy(current, best); // current tömböt deep copyzzuk a best (kezdetben üres) tömbbe
     best_cost = getCost(best); // a best_constra beállítjuk a deep_copy teljes úthosszát
@@ -106,35 +106,34 @@ function solve() {
 
     
 }
+
 function update() {
     cls(255, 255, 190);
-
-        var current_cost = getCost(current); // a current_costra beállítjuk az eredti tömb teljes úthosszát
-        var k = randomInt(CITIES); // k és l = randomInt(26) városok száma közötti (0 és 26) random, egész szám
-        var l = randomInt(CITIES);
-        var neighbor = neighborSwap(current, k, l); // copyzunk egy neighbor tömböt ahol már lesznek cserélve elemek (random k és l)
-        var neighbor_cost = getCost(neighbor); // a neighbor tömb teljes úthossza
-        if (Math.random() < acceptanceProbability(current_cost, neighbor_cost)) { // ha itt egyet kapunk vissza mert a neighbor_cost kisebb (vagyis jobb) lett, mint a current_cost, akkor teljesül az if. Ha nem egyet kapunk vissza az "acceptanceProbability" függvénynél, akkor is van esély arra, hogy belép az if-be
-            deep_copy(neighbor, current); // mivel a neighbor tömb jobb ezért ezt átmásoljuk a current tömbbe
-            current_cost = getCost(current); // frissítjük a current_cost a current tömb teljes úthosszával
-        }
-        if (current_cost < best_cost) { // ha a current_cost a best_cost-nál is jobb, akkor ezt másoljuk a best tömbbe és best_cost-ra ennek az úthosszát állítjuk be
-            deep_copy(current, best);
-            best_cost = current_cost;
-            paint();
-        }
-        temperature *= COOLING_RATE;
-        document.getElementById("temperatureCalc").textContent = "Temperature: " + temperature;
+    var current_cost = getCost(current); // a current_costra beállítjuk az eredti tömb teljes úthosszát
+    var k = randomInt(CITIES); // k és l = randomInt(26) városok száma közötti (0 és 26) random, egész szám
+    var l = randomInt(CITIES);
+    var neighbor = neighborSwap(current, k, l); // copyzunk egy neighbor tömböt ahol már lesznek cserélve elemek (random k és l)
+    var neighbor_cost = getCost(neighbor); // a neighbor tömb teljes úthossza
+    if (Math.random() < acceptanceProbability(current_cost, neighbor_cost)) { // ha itt egyet kapunk vissza mert a neighbor_cost kisebb (vagyis jobb) lett, mint a current_cost, akkor teljesül az if. Ha nem egyet kapunk vissza az "acceptanceProbability" függvénynél, akkor is van esély arra, hogy belép az if-be
+        deep_copy(neighbor, current); // mivel a neighbor tömb jobb ezért ezt átmásoljuk a current tömbbe
+        current_cost = getCost(current); // frissítjük a current_cost a current tömb teljes úthosszával
+    }
+    if (current_cost < best_cost) { // ha a current_cost a best_cost-nál is jobb, akkor ezt másoljuk a best tömbbe és best_cost-ra ennek az úthosszát állítjuk be
+        deep_copy(current, best);
+        best_cost = current_cost;
+        paint();
         document.getElementById("bestcost").textContent = "Best Cost: " + best_cost;
+    }
+    document.getElementById("temperatureCalc").textContent = "Temperature: " + temperature;
+    temperature *= COOLING_RATE;
     if (temperature <= ABSOLUTE_ZERO) {
         clearInterval(motor);
-        paint();
         consoleLogDecorated("End of the algorithm. ");
         return;
     }
     paint();
-
 }
+
 function paint() {
     // Cities
     for (var i = 0; i < CITIES; i++) {
@@ -189,12 +188,10 @@ function stop() {
 
 function calculateFactorial() {
     const num = document.getElementById('cities').value;
-
     if (num < 0) {
         document.getElementById('factorial').textContent = 'Error: Input must be a non-negative integer.';
         return;
     }
-
     let factorial = 1;
     for (let i = 1; i <= BigInt(num); i++) {
         factorial *= i;
