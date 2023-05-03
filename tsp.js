@@ -8,8 +8,12 @@ document.getElementById("option2").addEventListener("click", function () {
 });
 
 document.getElementById("option3").addEventListener("click", function () {
+    window.location.href = "./gaWasm/gaWasm.html";
+});
+
+document.getElementById("option4").addEventListener("click", function () {
     window.location.href = "./bea/bea.html";
 });
-document.getElementById("option4").addEventListener("click", function () {
+document.getElementById("option5").addEventListener("click", function () {
     window.location.href = "./dbmea/dbmea.html";
 });
