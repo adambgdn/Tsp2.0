@@ -411,7 +411,7 @@ function calculateFactorial() {
     for (let i = 1; i <= BigInt(num); i++) {
         factorial *= i;
     }
-    document.getElementById('factorial').textContent = `All possible solutions for ${num} cities: ${factorial}.` + " Max City = " + varosokA.length;
+    document.getElementById('factorial').textContent = `All possible solutions for ${num} cities: ${factorial}.`;
 }
 
 function reverse() {
