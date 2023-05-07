@@ -89,12 +89,12 @@ function update() {
         bestPopObj = JSON.parse(JSON.stringify(population));
     }
     //???????????????????
-    //segment: CALCULATED, RANDOM GENERATED, OR INPUT PARAMETER?
+    //segmentLength: CALCULATED, RANDOM GENERATED, OR INPUT PARAMETER?
     //???????????????????
-    const segment = 4;
+    const segmentLength = 4;
 
     objective(population);
-    population = bacterialMutation(population, CLONES, segment);
+    population = bacterialMutation(population, CLONES, segmentLength);
     objective(population);
     population = transfer(population);
 
@@ -140,9 +140,9 @@ function objective(pop) {
     pop.sort(compare);
 }
 
-function bacterialMutation(pop, clones, segment) {
+function bacterialMutation(pop, clones, segmentLength) {
     for (let i = 0; i < pop.length; i++) {
-        pop[i] = mutate(pop[i], clones, segment);
+        pop[i] = mutate(pop[i], clones, segmentLength);
     }
     return pop;
 }
