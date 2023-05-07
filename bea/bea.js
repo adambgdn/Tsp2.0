@@ -29,8 +29,7 @@ var cityCoords = [[480, 350], [150, 120], [160, 230], [240, 300], [250, 270], [1
                   [213, 320], [234, 189], [34, 521], [200, 23], [44, 400], [548, 370], [378, 500], [590, 550],
                   [12, 580], [130, 40], [170, 90], [52, 128], [470, 400], [93, 470], [390, 380], [410, 378],
                   [50, 540], [370, 80], [410, 70], [0, 280], [600, 270], [610, 390], [620, 100], [580, 10]];
-const distances = createDistanceMatrix(cityCoords);
-
+var distances;
 var bestPopObj;
 var population;
 var iteration;
@@ -41,7 +40,6 @@ var motor;
 class CHROMOSOME {
     constructor() {
         this.order = new Array(CITIES);
-        this.fitness = 0;
         this.objective = 0;
     }
 }
@@ -55,6 +53,8 @@ console.log = function (message) {
 function initialize() {
     canvas = document.getElementById('tsp-canvas');
     ctx = canvas.getContext("2d");
+    distances = createDistanceMatrix(cityCoords);
+
 }
 
 function init(pop) {
@@ -94,10 +94,8 @@ function update() {
     const segment = 4;
 
     objective(population);
-    fitness(population);
     population = bacterialMutation(population, CLONES, segment);
     objective(population);
-    fitness(population);
     population = transfer(population);
 
     if (population[0].objective <= bestPopObj[0].objective) {
@@ -139,13 +137,7 @@ function objective(pop) {
         obj += distances[from][to];
         pop[ind].objective = obj;
     }
-}
-
-function fitness(pop) {
     pop.sort(compare);
-    for (let ind = 0; ind < pop.length; ind++) {
-        pop[ind].fitness = (pop.length - ind) * (pop.length - ind);
-    }
 }
 
 function bacterialMutation(pop, clones, segment) {
@@ -188,12 +180,10 @@ function mutate(actPop, clones, segmentLength) {
             }
             //selecting the fittest from the clones
             objective(clonePopulation);
-            fitness(clonePopulation);
             bestclone[sN] = clonePopulation[0];
         }
     }
     objective(bestclone);
-    fitness(bestclone);
     return (bestclone[0]);
 
 }
@@ -218,10 +208,8 @@ function transfer(pop) {
         transferredPop[i].order = geneTransfer(randomSuperior.order, randomInferior.order, randStart, length, destinationPosition);
     }
     objective(transferredPop);
-    fitness(transferredPop);
     pop.push(...transferredPop)
     objective(pop);
-    fitness(pop);
     pop = pop.slice(0, POPSIZE)
     return pop;
 }
