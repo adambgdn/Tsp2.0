@@ -46,8 +46,8 @@ class CHROMOSOME {
     }
 }
 
-console.log = function (message) {
-    let logBox = document.getElementById("log-box");
+function logBox(message) {
+    var logBox = document.getElementById("log-box");
     logBox.innerHTML += message + "<br>";
     logBox.scrollTop = logBox.scrollHeight;
 };
@@ -364,7 +364,7 @@ function printBest(iter, pop) {
     document.getElementById("iterOutput").textContent = "Generation: " + iter + "/" + GENERATIONS;
 
     if (document.getElementById("genOutput").checked == true) {
-        console.log(output);
+        logBox(output);
     }
 
     document.getElementById("bestcost").textContent = "Best Cost: " + pop[0].objective;
