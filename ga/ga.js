@@ -16,14 +16,19 @@ $(document).ready(function () {
     });
 });
 
-document.getElementById('cities').addEventListener('input', calculateFactorial);
 const submitButton = document.getElementById('solve');
 const downloadBtn = document.getElementById('download-btn');
 
-//73 city
-const varosokA = [480, 150, 160, 240, 250, 121, 655, 180, 120, 190, 222, 333, 510, 170, 480, 180, 144, 560, 660, 400, 405, 150, 410, 20, 640, 30, 45, 101, 158, 81, 348, 10, 58, 70, 345, 481, 186, 182, 250, 256, 354, 658, 600, 520, 350, 233, 123, 321, 231, 213, 234, 34, 200, 44, 548, 378, 590, 12, 130, 170, 52, 470, 93, 390, 410, 50, 370, 410, 0, 600, 610, 620, 580];
-const varosokB = [350, 120, 230, 300, 270, 190, 310, 350, 400, 150, 470, 350, 555, 480, 120, 480, 577, 102, 108, 280, 200, 100, 500, 30, 50, 300, 78, 10, 170, 500, 28, 400, 77, 132, 152, 90, 210, 125, 290, 100, 412, 580, 42, 585, 540, 200, 12, 500, 360, 320, 189, 521, 23, 400, 370, 500, 550, 580, 40, 90, 128, 400, 470, 380, 378, 540, 80, 70, 280, 270, 390, 100, 10];
-const distances = createDistanceMatrix(varosokA, varosokB);
+var cityCoords = [[480, 350], [150, 120], [160, 230], [240, 300], [250, 270], [121, 190], [655, 310], [180, 350],
+[120, 400], [190, 150], [222, 470], [333, 350], [510, 555], [170, 480], [480, 120], [180, 480],
+[144, 577], [560, 102], [660, 108], [400, 280], [405, 200], [150, 100], [410, 500], [20, 30],
+[640, 50], [30, 300], [45, 78], [101, 10], [158, 170], [81, 500], [348, 28], [10, 400], [58, 77],
+[70, 132], [345, 152], [481, 90], [186, 210], [182, 125], [250, 290], [256, 100], [354, 412],
+[658, 580], [600, 42], [520, 585], [350, 540], [233, 200], [123, 12], [321, 500], [231, 360],
+[213, 320], [234, 189], [34, 521], [200, 23], [44, 400], [548, 370], [378, 500], [590, 550],
+[12, 580], [130, 40], [170, 90], [52, 128], [470, 400], [93, 470], [390, 380], [410, 378],
+[50, 540], [370, 80], [410, 70], [0, 280], [600, 270], [610, 390], [620, 100], [580, 10]];
+var distances;
 var best = [];
 var canvas;
 var ctx;
@@ -51,6 +56,7 @@ function logBox(message) {
 function initialize() {
     canvas = document.getElementById('tsp-canvas');
     ctx = canvas.getContext("2d");
+    distances = createDistanceMatrix(cityCoords);
 }
 
 function init(pop) {
@@ -246,10 +252,7 @@ function rotate(block) {
 }
 
 function printBest(iter, pop) {
-    var cityCoords = [];
-    for (let varosok = 0; varosok < CITIES; varosok++) {
-        cityCoords[varosok] = [varosokA[varosok], varosokB[varosok]]
-    }
+    var best = [];
     let output = "";
     let city;
     //var copy = pop[0].order; ez sajnos nem jó mert referenciát másol
@@ -264,7 +267,7 @@ function printBest(iter, pop) {
     for (city = 1; city < CITIES; city++) {
         best[city] = cityCoords[copy[city]];
     }
-    paint();
+    paint(best);
     document.getElementById("iterOutput").textContent = "Generation: " + iteration + "/" + MAXITER;
 
     if (document.getElementById("genOutput").checked == true) {
@@ -300,20 +303,20 @@ function euclideanDistance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }
 
-function createDistanceMatrix(cityX, cityY) {
-    const numCities = cityX.length;
+function createDistanceMatrix(cityCoords) {
+    const numCities = cityCoords.length;
     const distances = new Array(numCities);
     for (let i = 0; i < numCities; i++) {
         distances[i] = new Array(numCities);
         for (let j = 0; j < numCities; j++) {
-            const distance = euclideanDistance(cityX[i], cityY[i], cityX[j], cityY[j]);
+            const distance = euclideanDistance(cityCoords[i][0], cityCoords[i][1], cityCoords[j][0], cityCoords[j][1]);
             distances[i][j] = distance;
         }
     }
     return distances;
 }
 
-function paint() {
+function paint(best) {
     // Cities
     for (var i = 0; i < CITIES; i++) {
         ctx.beginPath();
@@ -388,6 +391,24 @@ downloadBtn.addEventListener('click', () => {
     a.download = 'output.txt';
     a.click();
     URL.revokeObjectURL(url);
+});
+
+const inputField = document.getElementById("cities");
+
+inputField.addEventListener("change", function () {
+    calculateFactorial();
+    const enteredValue = parseInt(inputField.value);
+    const maxValue = parseInt(inputField.getAttribute("max"));
+    const minValue = parseInt(inputField.getAttribute("min"));
+
+    if (enteredValue > maxValue) {
+        alert("Maximum allowed value for Cities is " + maxValue);
+        inputField.value = maxValue;
+    }
+    if (enteredValue < minValue) {
+        alert("Minimum allowed value for Cities is " + minValue);
+        inputField.value = minValue;
+    }
 });
 
 window.onload = initialize;
