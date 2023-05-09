@@ -1,10 +1,12 @@
 "use strict";
 
-var CITIES = 26;
-var GENERATIONS = 100;
-var POPSIZE = 50;
-var CLONES = 100;
-var INFECTIONS = 8000;
+var CITIES = 73;
+var GENERATIONS = 4000;
+var POPSIZE = 10;
+var CLONES = 3;
+var INFECTIONS = 4;
+var MUTATESEGMENTLENGTH = 4;
+var TRANSFERSEGMENTLENGTH = 35;
 
 $(document).ready(function () {
     calculateFactorial();
@@ -16,7 +18,6 @@ $(document).ready(function () {
     });
 });
 
-document.getElementById('cities').addEventListener('input', calculateFactorial);
 const submitButton = document.getElementById('solve');
 const downloadBtn = document.getElementById('download-btn');
 
@@ -54,7 +55,6 @@ function initialize() {
     canvas = document.getElementById('tsp-canvas');
     ctx = canvas.getContext("2d");
     distances = createDistanceMatrix(cityCoords);
-
 }
 
 function init(pop) {
@@ -72,8 +72,19 @@ function solve() {
     POPSIZE = parseInt($("#popsize").val());
     CLONES = parseInt($("#clones").val());
     INFECTIONS = parseInt($("#infections").val());
-    consoleLogDecorated("Running... ");
+    MUTATESEGMENTLENGTH = parseInt($("#mutateSegmentLength").val());
+    TRANSFERSEGMENTLENGTH = parseInt($("#transferSegmentLength").val());
 
+    if (GENERATIONS < 1) {
+        alert("Number of generations can't be 0.");
+        return;
+    }
+    if (POPSIZE < 2) {
+        alert("Size of the population can't be smaller than 2.");
+        return;
+    }
+
+    consoleLogDecorated("Running... ");
     population = Array.from({ length: POPSIZE }, () => new CHROMOSOME());
     iteration = 0;
     cls(255, 255, 190);
@@ -88,16 +99,10 @@ function update() {
     if (iteration == 1) {
         bestPopObj = JSON.parse(JSON.stringify(population));
     }
-    //???????????????????
-    //segmentLength: CALCULATED, RANDOM GENERATED, OR INPUT PARAMETER?
-    //???????????????????
-    const segmentLength = 4;
-
     objective(population);
-    population = bacterialMutation(population, CLONES, segmentLength);
+    population = bacterialMutation(population, CLONES, MUTATESEGMENTLENGTH);
     objective(population);
-    population = transfer(population);
-
+    population = transfer(population, TRANSFERSEGMENTLENGTH);
     if (population[0].objective <= bestPopObj[0].objective) {
         bestPopObj = JSON.parse(JSON.stringify(population));
     }
@@ -147,18 +152,18 @@ function bacterialMutation(pop, clones, segmentLength) {
     return pop;
 }
 
-function mutate(actPop, clones, segmentLength) {
+function mutate(actInd, clones, segmentLength) {
     let bestclone = [];
-    let segmentNumber = Math.floor(actPop.order.length / segmentLength);
+    let segmentNumber = Math.floor(actInd.order.length / segmentLength);
     for (let sN = 0; sN < segmentNumber; sN++) {
         let segmentStart = segmentLength * sN;
 
-        if (segmentStart + segmentLength <= actPop.order.length) {
+        if (segmentStart + segmentLength <= actInd.order.length) {
 
             //creation of the clone baterien
-            let beforeSegment = actPop.order.slice(0, segmentStart);
-            let afterSegment = actPop.order.slice(segmentStart + segmentLength);
-            let segmentArray = actPop.order.slice(segmentStart, segmentStart + segmentLength);
+            let beforeSegment = actInd.order.slice(0, segmentStart);
+            let afterSegment = actInd.order.slice(segmentStart + segmentLength);
+            let segmentArray = actInd.order.slice(segmentStart, segmentStart + segmentLength);
 
             let clonePopulation = new Array(clones);
             for (let i = 0; i < clonePopulation.length; i++) {
@@ -188,29 +193,25 @@ function mutate(actPop, clones, segmentLength) {
 
 }
 
-function transfer(pop) {
+function transfer(pop, length) {
     let half = Math.ceil(pop.length / 2);
     let superiorPop = pop.slice(0, half);
     let inferiorPop = pop.slice(half);
-    let transferredPop = new Array(INFECTIONS);
-    for (let i = 0; i < transferredPop.length; i++) {
-        transferredPop[i] = new CHROMOSOME;
-    }
+
     for (let i = 0; i < INFECTIONS; i++) {
         let randomSuperior = superiorPop[Math.floor(Math.random() * superiorPop.length)];
-        let randomInferior = inferiorPop[Math.floor(Math.random() * inferiorPop.length)];
+        var randomInferiorIndex = Math.floor(Math.random() * inferiorPop.length);
+        let randomInferior = inferiorPop[randomInferiorIndex];
 
         // A destinationPosition ne legyen nagyobb mint a randomInferior hossza
         // A start és a lenght ne legyen nagyobb mint a randomsuperior hossza -1
-        let length = 4;
         let randStart = Math.floor(Math.random() * randomInferior.order.length);
         let destinationPosition = Math.floor(Math.random() * (randomInferior.order.length - randStart)) + randStart;
-        transferredPop[i].order = geneTransfer(randomSuperior.order, randomInferior.order, randStart, length, destinationPosition);
+        var transferredPop = geneTransfer(randomSuperior.order, randomInferior.order, randStart, length, destinationPosition);
+        inferiorPop[randomInferiorIndex].order = transferredPop;
+        pop[randomInferiorIndex + half].order = transferredPop;
     }
-    objective(transferredPop);
-    pop.push(...transferredPop)
     objective(pop);
-    pop = pop.slice(0, POPSIZE)
     return pop;
 }
 
@@ -221,7 +222,7 @@ function geneTransfer(randomSuperior, randomInferior, start, length, destination
 
     let end = start + length;
     let segment = randomSuperior.slice(start, end);
-    for (let i = 0; i < segment.length; i++) {
+    for (let i = segment.length - 1; i >= 0; i--) {
         gtransferChromosome.splice(destinationPos, 0, segment[i]);
     }
     for (let i = 0; i < segment.length; i++) {
@@ -231,6 +232,7 @@ function geneTransfer(randomSuperior, randomInferior, start, length, destination
         } else {
             let originalIndex = gtransferChromosome.indexOf(segment[i], 0);
             gtransferChromosome.splice(originalIndex, 1);
+            destinationPos--;
         }
     }
     return gtransferChromosome;
@@ -380,6 +382,24 @@ downloadBtn.addEventListener('click', () => {
     a.download = 'output.txt';
     a.click();
     URL.revokeObjectURL(url);
+});
+
+const inputField = document.getElementById("cities");
+
+inputField.addEventListener("change", function () {
+    calculateFactorial();
+    const enteredValue = parseInt(inputField.value);
+    const maxValue = parseInt(inputField.getAttribute("max"));
+    const minValue = parseInt(inputField.getAttribute("min"));
+
+    if (enteredValue > maxValue) {
+        alert("Maximum allowed value for Cities is " + maxValue);
+        inputField.value = maxValue;
+    }
+    if (enteredValue < minValue) {
+        alert("Minimum allowed value for Cities is " + minValue);
+        inputField.value = minValue;
+    }
 });
 
 window.onload = initialize;
