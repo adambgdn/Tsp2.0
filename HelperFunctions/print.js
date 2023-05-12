@@ -1,8 +1,8 @@
 function logBox(message) {
-    var logBox = document.getElementById("log-box");
-    logBox.innerHTML += message + "<br>";
-    logBox.scrollTop = logBox.scrollHeight;
-};
+    var logBox = $('#log-box');
+    logBox.append(message + "<br>");
+    logBox.scrollTop(logBox.prop("scrollHeight"));
+}
 
 function printBest(iter, pop) {
     var best = [];
@@ -20,20 +20,20 @@ function printBest(iter, pop) {
         best[city] = cityCoords[copy[city]];
     }
     paint(best);
-    document.getElementById("iterOutput").textContent = "Generation: " + iter + "/" + MAXITER;
+    $('#iterOutput').text("Generation: " + iter + "/" + MAXITER);
 
-    if (document.getElementById("genOutput").checked == true) {
+    if ($('#genOutput').is(':checked')) {
         logBox(output);
     }
 
-    document.getElementById("bestcost").textContent = "Best Cost: " + pop[0].objective;
+    $('#bestcost').text("Best Cost: " + pop[0].objective);
 }
 
 function consoleLogDecorated(message) {
-    let logBox = document.getElementById("log-box");
+    let logBox = $('#log-box');
     let decoratedMessage = "<strong>" + message + "</strong>";
-    logBox.innerHTML += "<p style='text-align: center'>" + decoratedMessage + "</p>";
-    logBox.scrollTop = logBox.scrollHeight;
+    logBox.append("<p style='text-align: center'>" + decoratedMessage + "</p>");
+    logBox.scrollTop(logBox.prop("scrollHeight"));
 }
 
 function cls(r, g, b) {
