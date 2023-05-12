@@ -44,7 +44,7 @@ class CHROMOSOME {
     }
 }
 function initialize() {
-    canvas = document.getElementById('tsp-canvas');
+    canvas = $('#tsp-canvas')[0];
     ctx = canvas.getContext("2d");
     distances = createDistanceMatrix(cityCoords);
 }
@@ -94,7 +94,7 @@ function update() {
         bestPopObj = JSON.parse(JSON.stringify(population));
     }
     if (iteration == MAXITER) {
-        document.getElementById("iterOutput").textContent = "Generation: " + iteration + "/" + MAXITER;
+        $("#iterOutput").text("Generation: " + iteration + "/" + MAXITER);
 
         ctx.fillStyle = 'rgba(' + 255 + ',' + 255 + ',' + 190 + ', 0.9)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
