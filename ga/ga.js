@@ -16,9 +16,7 @@ $(document).ready(function () {
     });
 });
 
-const submitButton = document.getElementById('solve');
-const downloadBtn = document.getElementById('download-btn');
-
+// The fix coordinates of the cities
 var cityCoords = [[480, 350], [150, 120], [160, 230], [240, 300], [250, 270], [121, 190], [655, 310], [180, 350],
 [120, 400], [190, 150], [222, 470], [333, 350], [510, 555], [170, 480], [480, 120], [180, 480],
 [144, 577], [560, 102], [660, 108], [400, 280], [405, 200], [150, 100], [410, 500], [20, 30],
@@ -27,7 +25,8 @@ var cityCoords = [[480, 350], [150, 120], [160, 230], [240, 300], [250, 270], [1
 [658, 580], [600, 42], [520, 585], [350, 540], [233, 200], [123, 12], [321, 500], [231, 360],
 [213, 320], [234, 189], [34, 521], [200, 23], [44, 400], [548, 370], [378, 500], [590, 550],
 [12, 580], [130, 40], [170, 90], [52, 128], [470, 400], [93, 470], [390, 380], [410, 378],
-[50, 540], [370, 80], [410, 70], [0, 280], [600, 270], [610, 390], [620, 100], [580, 10]];
+    [50, 540], [370, 80], [410, 70], [0, 280], [600, 270], [610, 390], [620, 100], [580, 10]];
+
 var distances;
 var best = [];
 var canvas;
@@ -47,25 +46,10 @@ class GENOTYPE {
     }
 }
 
-function logBox(message) {
-    var logBox = document.getElementById("log-box");
-    logBox.innerHTML += message + "<br>";
-    logBox.scrollTop = logBox.scrollHeight;
-};
-
 function initialize() {
     canvas = document.getElementById('tsp-canvas');
     ctx = canvas.getContext("2d");
     distances = createDistanceMatrix(cityCoords);
-}
-
-function init(pop) {
-    for (let ind = 0; ind < POPSIZE; ind++) {
-        for (let gene = 0; gene < CITIES; gene++) {
-            pop[ind].order[gene] = gene;
-        }
-        fisherYates(pop[ind].order);
-    }
 }
 
 function solve() {
@@ -75,6 +59,7 @@ function solve() {
     MUTRATE = parseFloat($("#mutrate").val());
     MAXITER = parseInt($("#maxiter").val());
     consoleLogDecorated("Running... ");
+    console.time("myTimer");
 
     ppa = Array.from({ length: POPSIZE }, () => new GENOTYPE());
     ppb = Array.from({ length: POPSIZE }, () => new GENOTYPE());
@@ -102,48 +87,11 @@ function update() {
         clearInterval(motor);
         printBest(iteration, bestPopObj);
         consoleLogDecorated("End of the algorithm. ");
+        console.timeEnd("myTimer");
         return;
     }
     printBest(iteration, bestPopObj);
     iteration++;
-}
-
-function cls(r, g, b) {
-    ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ', 0.1)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-
-
-/* https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle */
-function fisherYates(order) {
-    for (let g1 = CITIES - 1; g1 > 0; g1--) {
-        let g2 = Math.floor(Math.random() * (g1 + 1));
-        let tmp = order[g1];
-        order[g1] = order[g2];
-        order[g2] = tmp;
-    }
-}
-
-function objective(pop) {
-    for (let ind = 0; ind < POPSIZE; ind++) {
-        let obj = 0,
-            from,
-            to;
-        for (let gene = 0; gene < CITIES - 1; gene++) {
-            from = pop[ind].order[gene];
-            to = pop[ind].order[gene + 1];
-            obj += distances[from][to];
-        }
-        from = pop[ind].order[CITIES - 1];
-        to = pop[ind].order[0];
-        obj += distances[from][to];
-        pop[ind].objective = obj;
-    }
-}
-
-function compare(ind1, ind2) {
-    return ind1.objective - ind2.objective;
 }
 
 function fitness(pop) {
@@ -156,7 +104,6 @@ function fitness(pop) {
 function copyElites(popOld, popNew) {
     for (let i = 0; i < POPSIZE; i++) {
         popNew[i].order = popOld[i].order.slice();
-        //ha fitness es objectet is másolni akarunk
         popNew[i].fitness = popOld[i].fitness;
         popNew[i].objective = popOld[i].objective;
     }
@@ -243,39 +190,6 @@ function crossover(popOld, popNew) {
     }
 }
 
-//the order of the array is the same, but start with 0
-function rotate(block) {
-    const zeroIndex = block.indexOf(0);
-    const start = block.splice(zeroIndex);
-    const end = block.splice(0, zeroIndex);
-    block.push(...start, ...end);
-}
-
-function printBest(iter, pop) {
-    var best = [];
-    let output = "";
-    let city;
-    //var copy = pop[0].order; ez sajnos nem jó mert referenciát másol
-    let copy = pop[0].order.slice();
-    rotate(copy);
-    output = `${iter.toString()}: ${cityCoords[copy[0]]}`;
-    for (city = 1; city < CITIES; city++) {
-        output += `->${cityCoords[copy[city]]}`;
-    }
-    output += `->${cityCoords[copy[0]]} = ${pop[0].objective}`;
-    best[0] = cityCoords[copy[0]];
-    for (city = 1; city < CITIES; city++) {
-        best[city] = cityCoords[copy[city]];
-    }
-    paint(best);
-    document.getElementById("iterOutput").textContent = "Generation: " + iteration + "/" + MAXITER;
-
-    if (document.getElementById("genOutput").checked == true) {
-        logBox(output);
-    }
-    document.getElementById("bestcost").textContent = "Best Cost: " + pop[0].objective;
-}
-
 function deep_copy(array, to) {
     var i = array.length;
     while (i--) {
@@ -299,116 +213,10 @@ function swap(pop1, pop2) {
     }
 }
 
-function euclideanDistance(x1, y1, x2, y2) {
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-}
-
-function createDistanceMatrix(cityCoords) {
-    const numCities = cityCoords.length;
-    const distances = new Array(numCities);
-    for (let i = 0; i < numCities; i++) {
-        distances[i] = new Array(numCities);
-        for (let j = 0; j < numCities; j++) {
-            const distance = euclideanDistance(cityCoords[i][0], cityCoords[i][1], cityCoords[j][0], cityCoords[j][1]);
-            distances[i][j] = distance;
-        }
-    }
-    return distances;
-}
-
-function paint(best) {
-    // Cities
-    for (var i = 0; i < CITIES; i++) {
-        ctx.beginPath();
-        ctx.arc(best[i][0], best[i][1], 4, 0, 2 * Math.PI);
-        ctx.fillStyle = "#9e0000";
-        ctx.strokeStyle = "#c71414";
-        ctx.closePath();
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    }
-    // Links
-    ctx.strokeStyle = "#ff0000";
-    ctx.lineWidth = 2;
-    ctx.moveTo(best[0][0], best[0][1]);
-    for (var i = 0; i < CITIES - 1; i++) {
-        ctx.lineTo(best[i + 1][0], best[i + 1][1]);
-    }
-    ctx.lineTo(best[0][0], best[0][1]);
-    ctx.stroke();
-    ctx.closePath();
-}
-
-function consoleLogDecorated(message) {
-    var logBox = document.getElementById("log-box");
-    var decoratedMessage = "<strong>" + message + "</strong>";
-    logBox.innerHTML += "<p style='text-align: center'>" + decoratedMessage + "</p>";
-    logBox.scrollTop = logBox.scrollHeight;
-}
-
 function stop() {
     clearInterval(motor);
     consoleLogDecorated("Stop button was pressed! ");
     consoleLogDecorated("End of the algorithm. ");
 }
-
-function calculateFactorial() {
-    const num = document.getElementById('cities').value;
-
-    if (num < 0) {
-        document.getElementById('factorial').textContent = 'Error: Input must be a non-negative integer.';
-        return;
-    }
-
-    let factorial = 1;
-    for (let i = 1; i <= BigInt(num); i++) {
-        factorial *= i;
-    }
-    document.getElementById('factorial').textContent = `All possible solutions for ${num} cities: ${factorial}.`;
-}
-
-document.addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') {
-        const activeElement = document.activeElement;
-        if (activeElement.tagName === 'INPUT') {
-            event.preventDefault();
-            solve();
-            return;
-        }
-        event.preventDefault();
-        solve();
-    }
-});
-
-downloadBtn.addEventListener('click', () => {
-    const logbox = document.getElementById('log-box');
-    const logData = logbox.textContent;
-    const blob = new Blob([logData], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'output.txt';
-    a.click();
-    URL.revokeObjectURL(url);
-});
-
-const inputField = document.getElementById("cities");
-
-inputField.addEventListener("change", function () {
-    calculateFactorial();
-    const enteredValue = parseInt(inputField.value);
-    const maxValue = parseInt(inputField.getAttribute("max"));
-    const minValue = parseInt(inputField.getAttribute("min"));
-
-    if (enteredValue > maxValue) {
-        alert("Maximum allowed value for Cities is " + maxValue);
-        inputField.value = maxValue;
-    }
-    if (enteredValue < minValue) {
-        alert("Minimum allowed value for Cities is " + minValue);
-        inputField.value = minValue;
-    }
-});
 
 window.onload = initialize;
