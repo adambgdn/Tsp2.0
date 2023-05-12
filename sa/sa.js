@@ -16,8 +16,6 @@ $(document).ready(function () {
     });
 });
 
-const submitButton = document.getElementById('solve');
-const downloadBtn = document.getElementById('download-btn');
 
 var cityCoords = [[480, 350], [150, 120], [160, 230], [240, 300], [250, 270], [121, 190], [655, 310], [180, 350],
 [120, 400], [190, 150], [222, 470], [333, 350], [510, 555], [170, 480], [480, 120], [180, 480],
@@ -30,12 +28,6 @@ var cityCoords = [[480, 350], [150, 120], [160, 230], [240, 300], [250, 270], [1
 [50, 540], [370, 80], [410, 70], [0, 280], [600, 270], [610, 390], [620, 100], [580, 10]];
 var distances;
 
-function logBox(message) {
-    var logBox = document.getElementById("log-box");
-    logBox.innerHTML += message + "<br>";
-    logBox.scrollTop = logBox.scrollHeight;
-};
-
 function initialize() {
     canvas = document.getElementById('tsp-canvas');
     ctx = canvas.getContext("2d");
@@ -44,10 +36,10 @@ function initialize() {
 
 //init();
 function randomInt(n) {
-    return Math.floor(Math.random() * (n)); // 0 és n közötti random, egész szám
+    return Math.floor(Math.random() * (n)); 
 }
 
-function deep_copy(array, to) { // tömb másolása másik tömbbe
+function deep_copy(array, to) { 
     var i = array.length;
     while (i--) {
         to[i] = [array[i][0], array[i][1]];
@@ -56,14 +48,14 @@ function deep_copy(array, to) { // tömb másolása másik tömbbe
 
 function getCost(route) {
     var cost = 0;
-    for (var i = 0; i < CITIES - 1; i++) { // i:0-25
-        cost = cost + getDistance(route[i], route[i + 1]); // const = const + deep_copy tömb[i] és [i+1] (azt követõ) tagjának a távolsága (getDistance), az összes egymást követõ város távolsága, teljes út hossza kivéve az utolsó és elsõ pont közötti távolság
+    for (var i = 0; i < CITIES - 1; i++) { 
+        cost = cost + getDistance(route[i], route[i + 1]);
     }
-    cost = cost + getDistance(route[0], route[CITIES - 1]); // const = const + deep_copy tömb[0] és [25] tagjának a távolsága (getDistance), az összes út hosszához hozzáadjuk az utolsó és elsõ város közötti út hosszát
+    cost = cost + getDistance(route[0], route[CITIES - 1]);
     return cost;
 }
 
-function getDistance(p1, p2) { // matek tétel: két pont távolsága megegyezik a pontok koordináta különbségeinek négyzete, összeadva, majd az egész gyök alatt
+function getDistance(p1, p2) { 
     del_x = p1[0] - p2[0];
     del_y = p1[1] - p2[1];
     return Math.sqrt((del_x * del_x) + (del_y * del_y));
@@ -91,13 +83,12 @@ function acceptanceProbability(current_cost, neighbor_cost) {
     return Math.exp((current_cost - neighbor_cost) / temperature);
 }
 
-function init() {
-    // feltöltjük a current tömböt a városok x és y koordinátáival
+function initSa() {
     for (var i = 0; i < CITIES; i++) {
         current[i] = cityCoords[i];
     }
-    deep_copy(current, best); // current tömböt deep copyzzuk a best (kezdetben üres) tömbbe
-    best_cost = getCost(best); // a best_constra beállítjuk a deep_copy teljes úthosszát
+    deep_copy(current, best); 
+    best_cost = getCost(best);
 }
 
 function solve() {
@@ -109,25 +100,25 @@ function solve() {
 
     iteration = 0;
     cls(255, 255, 190);
-    init();
+    initSa();
     motor = setInterval(update, 10);   
 }
 
 function update() {
     cls(255, 255, 190);
-    var current_cost = getCost(current); // a current_costra beállítjuk az eredti tömb teljes úthosszát
-    var k = randomInt(CITIES); // k és l = randomInt(26) városok száma közötti (0 és 26) random, egész szám
+    var current_cost = getCost(current); 
+    var k = randomInt(CITIES);
     var l = randomInt(CITIES);
-    var neighbor = neighborSwap(current, k, l); // copyzunk egy neighbor tömböt ahol már lesznek cserélve elemek (random k és l)
-    var neighbor_cost = getCost(neighbor); // a neighbor tömb teljes úthossza
-    if (Math.random() < acceptanceProbability(current_cost, neighbor_cost)) { // ha itt egyet kapunk vissza mert a neighbor_cost kisebb (vagyis jobb) lett, mint a current_cost, akkor teljesül az if. Ha nem egyet kapunk vissza az "acceptanceProbability" függvénynél, akkor is van esély arra, hogy belép az if-be
-        deep_copy(neighbor, current); // mivel a neighbor tömb jobb ezért ezt átmásoljuk a current tömbbe
-        current_cost = getCost(current); // frissítjük a current_cost a current tömb teljes úthosszával
+    var neighbor = neighborSwap(current, k, l);
+    var neighbor_cost = getCost(neighbor);
+    if (Math.random() < acceptanceProbability(current_cost, neighbor_cost)) {
+        deep_copy(neighbor, current);
+        current_cost = getCost(current); 
     }
-    if (current_cost < best_cost) { // ha a current_cost a best_cost-nál is jobb, akkor ezt másoljuk a best tömbbe és best_cost-ra ennek az úthosszát állítjuk be
+    if (current_cost < best_cost) {
         deep_copy(current, best);
         best_cost = current_cost;
-        paint();
+        paintSa();
         document.getElementById("bestcost").textContent = "Best Cost: " + best_cost;
     }
     document.getElementById("temperatureCalc").textContent = "Temperature: " + temperature;
@@ -137,27 +128,10 @@ function update() {
         consoleLogDecorated("End of the algorithm. ");
         return;
     }
-    paint();
+    paintSa();
 }
 
-function euclideanDistance(x1, y1, x2, y2) {
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-}
-
-function createDistanceMatrix(cityCoords) {
-    const numCities = cityCoords.length;
-    const distances = new Array(numCities);
-    for (let i = 0; i < numCities; i++) {
-        distances[i] = new Array(numCities);
-        for (let j = 0; j < numCities; j++) {
-            const distance = euclideanDistance(cityCoords[i][0], cityCoords[i][1], cityCoords[j][0], cityCoords[j][1]);
-            distances[i][j] = distance;
-        }
-    }
-    return distances;
-}
-
-function paint() {
+function paintSa() {
     // Cities
     for (var i = 0; i < CITIES; i++) {
         ctx.beginPath();
@@ -191,78 +165,10 @@ function paint() {
     }
 }
 
-function consoleLogDecorated(message) {
-    var logBox = document.getElementById("log-box");
-    var decoratedMessage = "<strong>" + message + "</strong>";
-    logBox.innerHTML += "<p style='text-align: center'>" + decoratedMessage + "</p>";
-    logBox.scrollTop = logBox.scrollHeight;
-}
-
-function cls(r, g, b) {
-    ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ', 0.1)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
 function stop() {
     clearInterval(motor);
     consoleLogDecorated("Stop button was pressed! ");
     consoleLogDecorated("End of the algorithm. ");
 }
-
-function calculateFactorial() {
-    const num = document.getElementById('cities').value;
-    if (num < 0) {
-        document.getElementById('factorial').textContent = 'Error: Input must be a non-negative integer.';
-        return;
-    }
-    let factorial = 1;
-    for (let i = 1; i <= BigInt(num); i++) {
-        factorial *= i;
-    }
-    document.getElementById('factorial').textContent = `All possible solutions for ${num} cities: ${factorial}.`;
-}
-
-document.addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') {
-        const activeElement = document.activeElement;
-        if (activeElement.tagName === 'INPUT') {
-            event.preventDefault();
-            solve();
-            return;
-        }
-        event.preventDefault();
-        solve();
-    }
-});
-
-downloadBtn.addEventListener('click', () => {
-    const logbox = document.getElementById('log-box');
-    const logData = logbox.textContent;
-    const blob = new Blob([logData], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'output.txt';
-    a.click();
-    URL.revokeObjectURL(url);
-});
-
-const inputField = document.getElementById("cities");
-
-inputField.addEventListener("change", function () {
-    calculateFactorial();
-    const enteredValue = parseInt(inputField.value);
-    const maxValue = parseInt(inputField.getAttribute("max"));
-    const minValue = parseInt(inputField.getAttribute("min"));
-
-    if (enteredValue > maxValue) {
-        alert("Maximum allowed value for Cities is " + maxValue);
-        inputField.value = maxValue;
-    }
-    if (enteredValue < minValue) {
-        alert("Minimum allowed value for Cities is " + minValue);
-        inputField.value = minValue;
-    }
-});
 
 window.onload = initialize;
