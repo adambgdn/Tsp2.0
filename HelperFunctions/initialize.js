@@ -35,10 +35,10 @@ function fisherYates(order) {
 }
 
 function calculateFactorial() {
-    const num = document.getElementById('cities').value;
+    const num = $('#cities').val();
 
     if (num < 0) {
-        document.getElementById('factorial').textContent = 'Error: Input must be a non-negative integer.';
+        $('#factorial').text('Error: Input must be a non-negative integer.');
         return;
     }
 
@@ -46,5 +46,5 @@ function calculateFactorial() {
     for (let i = 1; i <= BigInt(num); i++) {
         factorial *= i;
     }
-    document.getElementById('factorial').textContent = `All possible solutions for ${num} cities: ${factorial}.`;
+    $('#factorial').text(`All possible solutions for ${num} cities: ${factorial}.`);
 }
