@@ -29,7 +29,7 @@ var cityCoords = [[480, 350], [150, 120], [160, 230], [240, 300], [250, 270], [1
 var distances;
 
 function initialize() {
-    canvas = document.getElementById('tsp-canvas');
+    canvas = $('#tsp-canvas')[0];
     ctx = canvas.getContext("2d");
     distances = createDistanceMatrix(cityCoords);
 }
@@ -119,9 +119,9 @@ function update() {
         deep_copy(current, best);
         best_cost = current_cost;
         paintSa();
-        document.getElementById("bestcost").textContent = "Best Cost: " + best_cost;
+        $("#bestcost").text("Best Cost: " + best_cost);
     }
-    document.getElementById("temperatureCalc").textContent = "Temperature: " + temperature;
+    $("#temperatureCalc").text("Temperature: " + temperature);
     temperature *= COOLING_RATE;
     if (temperature <= ABSOLUTE_ZERO) {
         clearInterval(motor);
@@ -160,7 +160,7 @@ function paintSa() {
         output += `->${best[city]}`;
     }
     output += `->${best[0]} = ${best_cost}`;
-    if (document.getElementById("genOutput").checked == true) {
+    if ($("#genOutput").is(":checked")) {
         logBox(output);
     }
 }
