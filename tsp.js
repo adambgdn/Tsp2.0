@@ -1,19 +1,20 @@
 // Add event listeners to the buttons
-document.getElementById("option1").addEventListener("click", function () {
+$("#option1").click(function () {
     window.location.href = "./sa/sa.html";
 });
 
-document.getElementById("option2").addEventListener("click", function () {
+$("#option2").click(function () {
     window.location.href = "./ga/ga.html";
 });
 
-document.getElementById("option3").addEventListener("click", function () {
+$("#option3").click(function () {
     window.location.href = "./gaWasm/gaWasm.html";
 });
 
-document.getElementById("option4").addEventListener("click", function () {
+$("#option4").click(function () {
     window.location.href = "./bea/bea.html";
 });
-document.getElementById("option5").addEventListener("click", function () {
+
+$("#option5").click(function () {
     window.location.href = "./dbmea/dbmea.html";
 });
