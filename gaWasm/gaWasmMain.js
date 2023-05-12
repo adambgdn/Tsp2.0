@@ -3,7 +3,7 @@ var gaAlgorithm = Module.cwrap(
     "string",
     ["number", "number", "number", "number", "number"],
 );
-var outputDiv = document.getElementById("log-box");
+var outputDiv = $("#log-box")[0];
 var canvas;
 var ctx;
 
@@ -16,7 +16,7 @@ $(document).ready(function () {
 
 function run_wasm() {
     var startTime = performance.now();
-    canvas = document.getElementById('tsp-canvas');
+    canvas = $('#tsp-canvas')[0];
     ctx = canvas.getContext("2d");
     ctx.fillStyle = 'rgb(255, 255, 190)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -31,8 +31,8 @@ function run_wasm() {
     var endTime = performance.now();
     var runtime = (endTime - startTime);
 
-    document.querySelector("#log-box").innerHTML = result;
-    document.querySelector("#runtime").innerHTML = "Runtime: " + runtime + " ms";
+    $("#log-box").html(result);
+    $("#runtime").html("Runtime: " + runtime + " ms");
 
     const sum = parseInt(result.split('=')[1]);
     const coordinates = result
@@ -44,7 +44,7 @@ function run_wasm() {
     console.log('Coordinates:', coordinates);
 
     paintWasm(coordinates, CITIES);
-    document.querySelector("#bestcost").innerHTML = "Best Cost: " + sum + " km";
+    $("#bestcost").html("Best Cost: " + sum + " km");
 
 }
 
