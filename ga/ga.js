@@ -47,7 +47,7 @@ class GENOTYPE {
 }
 
 function initialize() {
-    canvas = document.getElementById('tsp-canvas');
+    canvas = $('#tsp-canvas')[0];
     ctx = canvas.getContext("2d");
     distances = createDistanceMatrix(cityCoords);
 }
@@ -83,7 +83,7 @@ function update() {
         bestPopObj = JSON.parse(JSON.stringify(ppa));
     }
     if (iteration == MAXITER) {
-        document.getElementById("iterOutput").textContent = "Iteration: " + iteration + "/" + MAXITER;
+        $("#iterOutput").text("Iteration: " + iteration + "/" + MAXITER);
         clearInterval(motor);
         printBest(iteration, bestPopObj);
         consoleLogDecorated("End of the algorithm. ");
