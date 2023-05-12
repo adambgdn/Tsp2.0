@@ -45,7 +45,7 @@ class CHROMOSOME {
 }
 
 function initialize() {
-    canvas = document.getElementById('tsp-canvas');
+    canvas = $('#tsp-canvas')[0];
     ctx = canvas.getContext("2d");
     distances = createDistanceMatrix(cityCoords);
 }
@@ -91,7 +91,7 @@ function update() {
         bestPopObj = JSON.parse(JSON.stringify(population));
     }
     if (iteration == MAXITER) {
-        document.getElementById("iterOutput").textContent = "Generation: " + iteration + "/" + MAXITER;
+        $("#iterOutput").text("Generation: " + iteration + "/" + MAXITER);
         clearInterval(motor);
         printBest(iteration, bestPopObj);
         consoleLogDecorated("End of the algorithm. ");
