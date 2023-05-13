@@ -9,6 +9,7 @@ var MAXITER = 800;
 $(document).ready(function () {
     calculateFactorial();
     $("#solve").click(function () {
+        $("#solve").prop("disabled", true);
         solve();
     });
     $("#stop").click(function () {
@@ -87,6 +88,7 @@ function update() {
         clearInterval(motor);
         printBest(iteration, bestPopObj);
         consoleLogDecorated("End of the algorithm. ");
+        $("#solve").prop("disabled", false);
         console.timeEnd("myTimer");
         return;
     }
@@ -217,6 +219,7 @@ function stop() {
     clearInterval(motor);
     consoleLogDecorated("Stop button was pressed! ");
     consoleLogDecorated("End of the algorithm. ");
+    $("#solve").prop("disabled", false);
 }
 
 window.onload = initialize;
