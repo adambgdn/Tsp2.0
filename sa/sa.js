@@ -9,6 +9,7 @@ var best_cost = 0;
 $(document).ready(function () {
     calculateFactorial();
     $("#solve").click(function () {
+        $("#solve").prop("disabled", true);
         solve();
     });
     $("#stop").click(function () {
@@ -126,6 +127,7 @@ function update() {
     if (temperature <= ABSOLUTE_ZERO) {
         clearInterval(motor);
         consoleLogDecorated("End of the algorithm. ");
+        $("#solve").prop("disabled", false);
         return;
     }
     paintSa();
@@ -169,6 +171,7 @@ function stop() {
     clearInterval(motor);
     consoleLogDecorated("Stop button was pressed! ");
     consoleLogDecorated("End of the algorithm. ");
+    $("#solve").prop("disabled", false);
 }
 
 window.onload = initialize;
