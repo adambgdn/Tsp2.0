@@ -10,6 +10,7 @@ $(document).ready(function () {
     calculateFactorial();
     $("#solve").click(function () {
         $("#solve").prop("disabled", true);
+        $("#stop").prop("disabled", false);
         solve();
     });
     $("#stop").click(function () {
@@ -89,6 +90,7 @@ function update() {
         printBest(iteration, bestPopObj);
         consoleLogDecorated("End of the algorithm. ");
         $("#solve").prop("disabled", false);
+        $("#stop").prop("disabled", true);
         console.timeEnd("myTimer");
         return;
     }
@@ -220,6 +222,7 @@ function stop() {
     consoleLogDecorated("Stop button was pressed! ");
     consoleLogDecorated("End of the algorithm. ");
     $("#solve").prop("disabled", false);
+    $("#stop").prop("disabled", true);
 }
 
 window.onload = initialize;
