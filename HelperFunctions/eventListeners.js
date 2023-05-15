@@ -1,5 +1,4 @@
 const submitButton = $('#solve')[0];
-const downloadBtn = $('#download-btn')[0];
 const inputField = $('#cities');
 
 $(document).on('keydown', function (event) {
@@ -15,7 +14,7 @@ $(document).on('keydown', function (event) {
     }
 });
 
-$('#downloadBtn').on('click', function () {
+$('#download-btn').on('click', function () {
     var logbox = $('#log-box')[0];
     var logData = logbox.textContent;
     var blob = new Blob([logData], { type: 'text/plain' });
